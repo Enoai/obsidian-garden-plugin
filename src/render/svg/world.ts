@@ -57,3 +57,43 @@ export function drawTuft(doc: Document, x: number, y: number): SVGElement {
   }
   return g;
 }
+
+const WOOD = "#c08a4e";
+const WOOD_DARK = "#8a5f31";
+const WOOD_STAKE = "#6f4a28";
+const WOOD_TEXT = "#3f2a12";
+const LABEL_HEIGHT = 18;
+
+/** A little wooden signpost naming the folder a bed represents. */
+export function drawBedLabel(doc: Document, bed: Bed): SVGElement {
+  const g = doc.createElementNS(SVG_NS, "g");
+  const raw = bed.key === "(root)" ? "root" : bed.key;
+  const label = raw.length > 16 ? `${raw.slice(0, 15)}…` : raw;
+  const width = Math.max(46, label.length * 7 + 16);
+  const cx = bed.x + bed.width / 2;
+  const plaqueY = bed.y - LABEL_HEIGHT - 3;
+
+  g.appendChild(el(doc, "rect", { x: cx - 2, y: bed.y - 6, width: 4, height: 12, fill: WOOD_STAKE }));
+  g.appendChild(el(doc, "rect", { x: cx - width / 2, y: plaqueY, width, height: LABEL_HEIGHT, rx: 5, fill: WOOD }));
+  g.appendChild(el(doc, "rect", { x: cx - width / 2, y: plaqueY, width, height: LABEL_HEIGHT, rx: 5, fill: "none", stroke: WOOD_DARK, "stroke-width": 1 }));
+
+  const text = doc.createElementNS(SVG_NS, "text");
+  text.setAttribute("x", String(cx));
+  text.setAttribute("y", String(plaqueY + LABEL_HEIGHT / 2));
+  text.setAttribute("text-anchor", "middle");
+  text.setAttribute("dominant-baseline", "central");
+  text.setAttribute("font-family", "-apple-system, system-ui, sans-serif");
+  text.setAttribute("font-size", "11");
+  text.setAttribute("fill", WOOD_TEXT);
+  text.textContent = label;
+  g.appendChild(text);
+  return g;
+}
+
+/** A wooden frame around the whole plot. */
+export function drawBorder(doc: Document, width: number, height: number): SVGElement {
+  const g = doc.createElementNS(SVG_NS, "g");
+  g.appendChild(el(doc, "rect", { x: 3, y: 3, width: width - 6, height: height - 6, rx: 14, fill: "none", stroke: WOOD_DARK, "stroke-width": 4 }));
+  g.appendChild(el(doc, "rect", { x: 6, y: 6, width: width - 12, height: height - 12, rx: 11, fill: "none", stroke: WOOD, "stroke-width": 1.5, "stroke-opacity": 0.6 }));
+  return g;
+}

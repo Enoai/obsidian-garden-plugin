@@ -11,7 +11,12 @@
  */
 import { NoteId, PositionedGarden } from "../model/types";
 
-export type PlantEvent = { type: "select"; id: NoteId };
+export type PlantEvent =
+  | { type: "select"; id: NoteId }
+  /** `rect` is the plant's on-screen bounding box (client coords), so the view
+   *  can anchor a tooltip to it. */
+  | { type: "hover"; id: NoteId; rect: DOMRect }
+  | { type: "unhover" };
 
 export interface Renderer {
   mount(host: HTMLElement): void;

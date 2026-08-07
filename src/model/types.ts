@@ -25,13 +25,18 @@ export interface HealthScore {
   connectivity: number;
 }
 
-/** Everything a renderer needs to draw one plant. */
+/** Everything a renderer needs to draw one plant — and enough raw metadata to
+ *  explain it to the user on hover. */
 export interface PlantState {
   id: NoteId;
   title: string;
   type: PlantType;
   health: HealthScore;
   stage: Stage;
+  /** Last-modified time (ms), for a human-readable "edited N days ago". */
+  modifiedMs: number;
+  /** Total links (out + back), for the hover stats. */
+  links: number;
 }
 
 /** The single source of truth the view renders from. */

@@ -17,6 +17,7 @@
  */
 import { PositionedPlant, Stage } from "../../model/types";
 import { clamp, lerp } from "../../util/math";
+import { hashString } from "../../util/hash";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -81,15 +82,24 @@ export function drawPlant(doc: Document, plant: PositionedPlant): SVGGElement {
   const connectivity = clamp(plant.health.connectivity, 0, 1);
   const scale = lerp(0.6, 1.25, connectivity);
 
-  // Soil mound.
+  // Soil mound (static — does not sway).
   g.appendChild(blob(doc, BASE_X, BASE_Y, 24 * scale, 6, SOIL));
   g.appendChild(blob(doc, BASE_X, BASE_Y - 3, 20 * scale, 4, SOIL_TOP));
 
+  // Foliage sits in its own group that CSS sways from the base. Each plant is
+  // desynced by its id so the garden doesn't move in unison.
+  const foliage = doc.createElementNS(SVG_NS, "g");
+  foliage.classList.add("garden-foliage");
+  const h = hashString(plant.id);
+  foliage.style.animationDelay = `-${(h % 6000) / 1000}s`;
+  foliage.style.animationDuration = `${4.2 + ((h >> 8) % 20) / 10}s`;
+
   if (plant.stage === "seed" || plant.stage === "sprout") {
-    drawSprout(doc, g, freshness, scale);
+    drawSprout(doc, foliage, freshness, scale);
   } else {
-    drawBush(doc, g, freshness, connectivity, scale, plant.stage);
+    drawBush(doc, foliage, freshness, connectivity, scale, plant.stage);
   }
+  g.appendChild(foliage);
 
   const title = doc.createElementNS(SVG_NS, "title");
   title.textContent = plant.title;

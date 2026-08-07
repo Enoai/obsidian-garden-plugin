@@ -40,8 +40,9 @@ export class GardenModel {
   }
 
   private toPlant(note: NoteMeta, nowMs: number): PlantState {
+    const links = note.outLinks + note.backLinks;
     const health = scoreNote(
-      { modifiedMs: note.modifiedMs, linkCount: note.outLinks + note.backLinks },
+      { modifiedMs: note.modifiedMs, linkCount: links },
       nowMs,
       this.cfg,
     );
@@ -51,6 +52,8 @@ export class GardenModel {
       type: this.resolveType(note),
       health,
       stage: stageOf(health),
+      modifiedMs: note.modifiedMs,
+      links,
     };
   }
 }

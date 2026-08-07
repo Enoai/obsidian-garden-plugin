@@ -22,19 +22,31 @@ export interface GardenLayoutOptions {
   bedPadding: number;
   /** Gap between beds. */
   clusterGap: number;
-  /** Rough width before beds wrap to a new row. */
-  targetWidth: number;
+  /** Rough width before beds wrap to a new row. If omitted, it's derived from
+   *  the total content so the garden forms a roughly square block rather than a
+   *  long line. */
+  targetWidth?: number;
 }
 
-const DEFAULTS: GardenLayoutOptions = {
+const DEFAULTS: Required<Omit<GardenLayoutOptions, "targetWidth">> = {
   plantWidth: 104,
   plantHeight: 104,
   spacing: 74,
   jitter: 9,
   bedPadding: 24,
   clusterGap: 44,
-  targetWidth: 780,
 };
+
+/** Aspect ratio to aim for when auto-wrapping (slightly landscape). */
+const TARGET_ASPECT = 1.4;
+
+interface SizedBed {
+  key: string;
+  ids: NoteId[];
+  cols: number;
+  width: number;
+  height: number;
+}
 
 /** Top-level folder of a note path; the key we clump on. */
 function topFolder(id: NoteId): string {
@@ -48,7 +60,7 @@ function jitter(id: string, salt: string, amount: number): number {
 }
 
 export class GardenLayout implements Layout {
-  private opts: GardenLayoutOptions;
+  private opts: Required<Omit<GardenLayoutOptions, "targetWidth">> & { targetWidth?: number };
 
   constructor(opts: Partial<GardenLayoutOptions> = {}) {
     this.opts = { ...DEFAULTS, ...opts };
@@ -66,21 +78,30 @@ export class GardenLayout implements Layout {
       groups.set(key, arr);
     }
 
+    // Pass 1: size each bed.
+    const sized: SizedBed[] = [...groups.entries()].sort().map(([key, ids]) => {
+      const cols = Math.max(1, Math.ceil(Math.sqrt(ids.length)));
+      const rows = Math.ceil(ids.length / cols);
+      return {
+        key,
+        ids,
+        cols,
+        width: (cols - 1) * o.spacing + o.plantWidth + o.bedPadding * 2,
+        height: (rows - 1) * o.spacing + o.plantHeight + o.bedPadding * 2,
+      };
+    });
+
+    const targetWidth = o.targetWidth ?? this.autoTargetWidth(sized);
+
+    // Pass 2: pack beds left-to-right, wrapping at targetWidth.
     const placed = new Map<NoteId, PositionedPlant>();
     const beds: Bed[] = [];
-
     let cursorX = o.clusterGap;
     let cursorY = o.clusterGap;
     let rowHeight = 0;
 
-    for (const [key, ids] of [...groups.entries()].sort()) {
-      const cols = Math.max(1, Math.ceil(Math.sqrt(ids.length)));
-      const rows = Math.ceil(ids.length / cols);
-      const bedW = (cols - 1) * o.spacing + o.plantWidth + o.bedPadding * 2;
-      const bedH = (rows - 1) * o.spacing + o.plantHeight + o.bedPadding * 2;
-
-      // Wrap to the next row of beds when this one won't fit.
-      if (cursorX > o.clusterGap && cursorX + bedW > o.targetWidth) {
+    for (const b of sized) {
+      if (cursorX > o.clusterGap && cursorX + b.width > targetWidth) {
         cursorX = o.clusterGap;
         cursorY += rowHeight + o.clusterGap;
         rowHeight = 0;
@@ -88,20 +109,20 @@ export class GardenLayout implements Layout {
 
       const bedX = cursorX;
       const bedY = cursorY;
-      beds.push({ key, x: bedX, y: bedY, width: bedW, height: bedH });
+      beds.push({ key: b.key, x: bedX, y: bedY, width: b.width, height: b.height });
 
-      ids.forEach((id, i) => {
+      b.ids.forEach((id, i) => {
         const plant = garden.plants.get(id);
         if (!plant) return;
-        const col = i % cols;
-        const row = Math.floor(i / cols);
+        const col = i % b.cols;
+        const row = Math.floor(i / b.cols);
         const x = bedX + o.bedPadding + col * o.spacing + jitter(id, "x", o.jitter);
         const y = bedY + o.bedPadding + row * o.spacing + jitter(id, "y", o.jitter);
         placed.set(id, { ...plant, position: { x, y } });
       });
 
-      cursorX += bedW + o.clusterGap;
-      rowHeight = Math.max(rowHeight, bedH);
+      cursorX += b.width + o.clusterGap;
+      rowHeight = Math.max(rowHeight, b.height);
     }
 
     // Re-emit back-to-front so overlapping canopies stack correctly.
@@ -110,5 +131,15 @@ export class GardenLayout implements Layout {
     );
 
     return { plants: ordered, beds };
+  }
+
+  /** Choose a wrap width so the beds pack into a roughly square (slightly
+   *  landscape) block instead of one long row. */
+  private autoTargetWidth(sized: SizedBed[]): number {
+    const totalArea = sized.reduce((sum, b) => sum + b.width * b.height, 0);
+    const widest = sized.reduce((m, b) => Math.max(m, b.width), 0);
+    const byArea = Math.sqrt(totalArea * TARGET_ASPECT);
+    // Never narrower than the widest single bed (plus a gap on each side).
+    return Math.max(widest + this.opts.clusterGap * 2, byArea);
   }
 }
