@@ -50,9 +50,25 @@ export interface PositionedPlant extends PlantState {
   position: Position;
 }
 
+/**
+ * A garden bed — a soil region a cluster of plants sits on. Keyed by the group
+ * it represents (a folder). In Phase 2 this becomes the drop target that maps a
+ * drag to a folder move.
+ */
+export interface Bed {
+  key: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 /** `GardenState` after a `Layout` has placed every plant. */
 export interface PositionedGarden {
+  /** Insertion order is back-to-front (ascending y) so overlap layers right. */
   plants: Map<NoteId, PositionedPlant>;
+  /** Optional soil beds under plant clusters; a grid layout omits these. */
+  beds?: Bed[];
 }
 
 /** Tunable constants for the scoring model. Surfaced in settings. */

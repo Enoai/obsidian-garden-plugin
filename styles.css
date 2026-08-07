@@ -19,11 +19,11 @@
 
 .garden-plant {
   cursor: pointer;
-  transition: transform 120ms ease;
 }
 
+/* Hover affordance without motion — the plant stays put, just brightens. */
 .garden-plant:hover {
-  transform: translateY(-2px);
+  filter: brightness(1.08);
 }
 
 /* Shown while the first snapshot is being computed. */

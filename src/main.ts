@@ -7,8 +7,9 @@ import { Plugin } from "obsidian";
 import { DEFAULT_SETTINGS, GardenSettings, GardenSettingTab } from "./settings";
 import { ObsidianVaultAdapter } from "./data/VaultAdapter";
 import { GardenModel } from "./model/GardenModel";
-import { GridLayout } from "./layout/GridLayout";
+import { GardenLayout } from "./layout/GardenLayout";
 import { SvgRenderer } from "./render/svg/SvgRenderer";
+import { PLANT_HEIGHT, PLANT_WIDTH } from "./render/svg/plants";
 import { GARDEN_VIEW_TYPE, GardenView, GardenViewDeps } from "./view/GardenView";
 import { ScoringConfig } from "./model/types";
 
@@ -42,7 +43,7 @@ export default class GardenPlugin extends Plugin {
     return {
       adapter: new ObsidianVaultAdapter(this.app),
       model: new GardenModel(getConfig()),
-      layout: new GridLayout(),
+      layout: new GardenLayout({ plantWidth: PLANT_WIDTH, plantHeight: PLANT_HEIGHT }),
       renderer: new SvgRenderer(),
       getConfig,
       debounceMs: this.settings.debounceMs,

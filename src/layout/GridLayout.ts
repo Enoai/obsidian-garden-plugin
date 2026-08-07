@@ -13,7 +13,9 @@ export interface GridLayoutOptions {
   columns?: number;
 }
 
-const DEFAULTS: GridLayoutOptions = { cellSize: 72, padding: 24 };
+// cellSize must exceed the renderer's plant footprint (PLANT_WIDTH/HEIGHT) so
+// neighbouring plants don't overlap.
+const DEFAULTS: GridLayoutOptions = { cellSize: 112, padding: 28 };
 
 export class GridLayout implements Layout {
   private opts: GridLayoutOptions;
