@@ -141,10 +141,12 @@ export class GardenLayout implements Layout {
     const topGap = o.gap * 2;
     const { pos } = pack(sizes, targetW, topGap);
 
-    // Reserve a strip along the top for the shed + compost.
+    // Reserve a strip along the top for the shed, compost, and watering can.
+    const step = STRUCTURE_WIDTH + o.gap;
     const structures: Structure[] = [
       { kind: "shed", x: o.margin, y: o.margin, width: STRUCTURE_WIDTH, height: STRUCTURE_HEIGHT },
-      { kind: "compost", x: o.margin + STRUCTURE_WIDTH + o.gap, y: o.margin, width: STRUCTURE_WIDTH, height: STRUCTURE_HEIGHT },
+      { kind: "compost", x: o.margin + step, y: o.margin, width: STRUCTURE_WIDTH, height: STRUCTURE_HEIGHT },
+      { kind: "watering", x: o.margin + step * 2, y: o.margin, width: STRUCTURE_WIDTH, height: STRUCTURE_HEIGHT },
     ];
     const bedsTop = o.margin + STRUCTURE_HEIGHT + o.gap * 2;
 

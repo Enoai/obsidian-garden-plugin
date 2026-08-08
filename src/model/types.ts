@@ -74,7 +74,7 @@ export interface Bed {
 /** A fixed garden structure that acts as a drop target for a gardening action:
  *  the shed archives a note, the compost trashes it. */
 export interface Structure {
-  kind: "shed" | "compost";
+  kind: "shed" | "compost" | "watering";
   x: number;
   y: number;
   width: number;

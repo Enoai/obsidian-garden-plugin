@@ -20,8 +20,9 @@ export type PlantEvent =
   /** A plant was dragged and dropped onto a different bed. `toKey` is the target
    *  folder path; client coords are for anchoring the confirm popup. */
   | { type: "dropped"; id: NoteId; toKey: string; clientX: number; clientY: number }
-  /** A plant was dropped onto a structure (shed → archive, compost → trash). */
-  | { type: "droppedStructure"; id: NoteId; kind: "shed" | "compost"; clientX: number; clientY: number };
+  /** A plant was dropped onto a structure (shed → archive, compost → trash,
+   *  watering → refresh). */
+  | { type: "droppedStructure"; id: NoteId; kind: "shed" | "compost" | "watering"; clientX: number; clientY: number };
 
 export interface Renderer {
   mount(host: HTMLElement): void;

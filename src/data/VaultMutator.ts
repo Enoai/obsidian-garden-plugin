@@ -18,6 +18,9 @@ export interface VaultMutator {
   archive(id: NoteId, archiveFolder: string): Promise<void>;
   /** Send a note to Obsidian's trash (respects the user's trash setting). */
   trash(id: NoteId): Promise<void>;
+  /** "Water" a note — bump its modified time so it reads as freshly tended,
+   *  without opening it. Content is unchanged. */
+  water(id: NoteId): Promise<void>;
 }
 
 export class ObsidianVaultMutator implements VaultMutator {
@@ -49,5 +52,14 @@ export class ObsidianVaultMutator implements VaultMutator {
     if (!(file instanceof TFile)) return;
     // Routes to the user's configured trash (system or .trash), never a hard delete.
     await this.app.fileManager.trashFile(file);
+  }
+
+  async water(id: NoteId): Promise<void> {
+    const file = this.app.vault.getAbstractFileByPath(id);
+    if (!(file instanceof TFile)) return;
+    // Rewriting the same content bumps the file's modified time (the freshness
+    // signal) without changing what the note says.
+    const data = await this.app.vault.read(file);
+    await this.app.vault.modify(file, data);
   }
 }

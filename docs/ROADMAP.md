@@ -53,10 +53,11 @@ packs, seasons/weather. All deferred — but their seams exist (see below).
 
 ## Phase 2 — The tended garden
 
-> **Status: in progress.** Drag-a-plant-to-another-bed moves the note to that
-> folder (subfolder-aware), with a confirm popup, via `VaultMutator`. Beds are
-> keyed by full folder path. Still to come: shed (archive), compost (delete),
-> watering can, greenhouse, and persisted manual placement.
+> **Status: in progress.** Working: drag a plant to another bed to move the
+> note (subfolder-aware, nested beds); drag to the **shed** to archive; to the
+> **compost** to trash (confirm); to the **watering can** to refresh a note's
+> freshness without opening it. All via `VaultMutator`. Still to come:
+> greenhouse (drafts) and persisted manual placement.
 
 **Goal:** the garden becomes a place you *tend*. Gardening actions map to real
 vault operations.

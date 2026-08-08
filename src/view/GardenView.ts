@@ -4,7 +4,7 @@
  * hover tooltip and decides what a plant interaction means (open the note) — but
  * no domain logic lives here.
  */
-import { ItemView, WorkspaceLeaf } from "obsidian";
+import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import { VaultAdapter } from "../data/VaultAdapter";
 import { VaultMutator } from "../data/VaultMutator";
 import { GardenModel } from "../model/GardenModel";
@@ -84,7 +84,11 @@ export class GardenView extends ItemView {
       else if (e.type === "hover") this.showTooltip(e.id, e.rect);
       else if (e.type === "unhover") this.scheduleHideTooltip();
       else if (e.type === "dropped") this.showMoveConfirm(e.id, e.toKey, e.clientX, e.clientY);
-      else if (e.type === "droppedStructure") this.showStructureConfirm(e.id, e.kind, e.clientX, e.clientY);
+      else if (e.type === "droppedStructure") {
+        // Watering is a gentle, reversible action — no confirm, just do it.
+        if (e.kind === "watering") void this.performWater(e.id);
+        else this.showStructureConfirm(e.id, e.kind, e.clientX, e.clientY);
+      }
     });
 
     // Tooltip lives above the canvas; keeping the pointer on it cancels the hide
@@ -260,6 +264,13 @@ export class GardenView extends ItemView {
 
   private async performTrash(id: NoteId): Promise<void> {
     await this.deps.mutator.trash(id);
+    this.refresh();
+  }
+
+  private async performWater(id: NoteId): Promise<void> {
+    const title = this.plantsById.get(id)?.title ?? id;
+    await this.deps.mutator.water(id);
+    new Notice(`Watered “${title}”`);
     this.refresh();
   }
 

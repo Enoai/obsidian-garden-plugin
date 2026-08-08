@@ -18,7 +18,7 @@ import { hashString } from "../../util/hash";
 import { parentFolder } from "../../util/paths";
 import { PlantEvent, Renderer } from "../Renderer";
 import { PLANT_HEIGHT, PLANT_WIDTH, drawPlant } from "./plants";
-import { drawBed, drawBedLabel, drawCompost, drawFence, drawGrass, drawShed, drawTuft } from "./world";
+import { drawBed, drawBedLabel, drawCompost, drawFence, drawGrass, drawShed, drawTuft, drawWateringCan } from "./world";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TUFT_STEP = 46;
@@ -201,7 +201,8 @@ export class SvgRenderer implements Renderer {
     }
 
     for (const s of structures) {
-      layer.appendChild(s.kind === "shed" ? drawShed(doc, s) : drawCompost(doc, s));
+      const drawn = s.kind === "shed" ? drawShed(doc, s) : s.kind === "compost" ? drawCompost(doc, s) : drawWateringCan(doc, s);
+      layer.appendChild(drawn);
     }
     for (const bed of beds) layer.appendChild(drawBedLabel(doc, bed));
     layer.appendChild(drawFence(doc, width, height));

@@ -138,6 +138,28 @@ export function drawCompost(doc: Document, s: Structure): SVGElement {
   return g;
 }
 
+/** A watering can — the "touch / refresh" drop target. */
+export function drawWateringCan(doc: Document, s: Structure): SVGElement {
+  const g = doc.createElementNS(SVG_NS, "g");
+  const cx = s.x + s.width / 2;
+  const CAN = "#4a9d8e";
+  const CAN_DARK = "#37796d";
+  const topY = s.y + 46;
+
+  g.appendChild(el(doc, "rect", { x: cx - 24, y: topY, width: 48, height: 36, rx: 7, fill: CAN }));
+  g.appendChild(el(doc, "rect", { x: cx - 24, y: topY, width: 48, height: 36, rx: 7, fill: "none", stroke: CAN_DARK, "stroke-width": 1 }));
+  g.appendChild(el(doc, "ellipse", { cx, cy: topY, rx: 24, ry: 5, fill: CAN_DARK }));
+  g.appendChild(el(doc, "path", { d: `M ${cx - 15} ${topY - 1} Q ${cx} ${topY - 21} ${cx + 15} ${topY - 1}`, stroke: CAN_DARK, "stroke-width": 4, fill: "none", "stroke-linecap": "round" }));
+  g.appendChild(el(doc, "path", { d: `M ${cx - 22} ${topY + 9} L ${cx - 46} ${topY - 7} L ${cx - 40} ${topY - 13} L ${cx - 18} ${topY + 3} Z`, fill: CAN }));
+  g.appendChild(el(doc, "path", { d: `M ${cx - 22} ${topY + 9} L ${cx - 46} ${topY - 7} L ${cx - 40} ${topY - 13} L ${cx - 18} ${topY + 3} Z`, fill: "none", stroke: CAN_DARK, "stroke-width": 1 }));
+  g.appendChild(el(doc, "ellipse", { cx: cx - 45, cy: topY - 10, rx: 6, ry: 4, fill: CAN_DARK }));
+  for (const [dx, dy] of [[-45, 4], [-48, 12], [-42, 11]] as const) {
+    g.appendChild(el(doc, "ellipse", { cx: cx + dx, cy: topY + dy, rx: 1.6, ry: 2.4, fill: "#7fc8f2" }));
+  }
+  g.appendChild(structureLabel(doc, cx, s.y + s.height - 6, "watering can"));
+  return g;
+}
+
 const FENCE = "#caa06a";
 const FENCE_DARK = "#8a5f31";
 const PICKET_STEP = 22;
