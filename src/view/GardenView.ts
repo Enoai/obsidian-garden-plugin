@@ -26,6 +26,7 @@ export interface GardenViewDeps {
   getConfig: () => ScoringConfig;
   archiveFolder: string;
   getSeason: () => SeasonSetting;
+  getSway: () => boolean;
   debounceMs: number;
   /** Read/persist the manual arrangement (drag-to-place). */
   getPlacement: () => Placement;
@@ -60,6 +61,8 @@ export class GardenView extends ItemView {
   private plantsById: Map<NoteId, PlantState> = new Map();
   private weather = new Weather();
   private lastSeason: Season | "off" | null = null;
+  private visibilityObs: IntersectionObserver | null = null;
+  private visible = true;
 
   constructor(
     leaf: WorkspaceLeaf,
@@ -115,6 +118,16 @@ export class GardenView extends ItemView {
     confirm.hidden = true;
     this.confirmEl = confirm;
 
+    // Pause animation when the garden isn't on screen (background tab, minimised
+    // window) — keeps idle CPU near zero.
+    this.visibilityObs = new IntersectionObserver((entries) => {
+      this.visible = entries.some((e) => e.isIntersecting);
+      this.updatePaused();
+    });
+    this.visibilityObs.observe(host);
+    this.registerDomEvent(document, "visibilitychange", () => this.updatePaused());
+    this.updatePaused();
+
     this.unsubscribe = this.deps.adapter.onChange(
       debounce(() => this.refresh(), this.deps.debounceMs),
     );
@@ -129,6 +142,8 @@ export class GardenView extends ItemView {
     this.confirmEl = null;
     this.weather.destroy();
     this.lastSeason = null;
+    this.visibilityObs?.disconnect();
+    this.visibilityObs = null;
     this.deps.renderer.destroy();
   }
 
@@ -138,7 +153,12 @@ export class GardenView extends ItemView {
     this.refresh();
   }
 
+  private updatePaused(): void {
+    this.contentEl.toggleClass("garden-paused", document.hidden || !this.visible);
+  }
+
   private refresh(): void {
+    this.contentEl.toggleClass("garden-no-sway", !this.deps.getSway());
     this.deps.model.setConfig(this.deps.getConfig());
     const snapshot = this.deps.adapter.snapshot();
     const state = this.deps.model.build(snapshot);
