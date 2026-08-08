@@ -13,11 +13,12 @@ import {
   VaultSnapshot,
 } from "./types";
 import { scoreNote, stageOf } from "./health";
+import { resolveSpecies } from "./plantTypes";
 
 /** Decides what kind of plant a note is. Swap in tag/folder rules here. */
 export type PlantTypeResolver = (note: NoteMeta) => PlantType;
 
-const defaultTypeResolver: PlantTypeResolver = () => "default";
+const defaultTypeResolver: PlantTypeResolver = (note) => resolveSpecies(note.id);
 
 export class GardenModel {
   constructor(
