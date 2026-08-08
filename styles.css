@@ -24,6 +24,20 @@
   cursor: grabbing;
 }
 
+/* While the watering-can tool is active, hide the OS cursor — the can element
+ * follows the pointer instead. */
+.garden-canvas.garden-watering {
+  cursor: none;
+}
+
+.garden-can-cursor {
+  position: absolute;
+  z-index: 13;
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+}
+
 /* Zoom / fit controls, pinned to the top-right of the pane. */
 .garden-controls {
   position: absolute;

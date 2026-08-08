@@ -22,7 +22,9 @@ export type PlantEvent =
   | { type: "dropped"; id: NoteId; toKey: string; clientX: number; clientY: number }
   /** A plant was dropped onto a structure (shed → archive, compost → trash,
    *  watering → refresh). */
-  | { type: "droppedStructure"; id: NoteId; kind: "shed" | "compost" | "watering"; clientX: number; clientY: number };
+  | { type: "droppedStructure"; id: NoteId; kind: "shed" | "compost" | "watering"; clientX: number; clientY: number }
+  /** A plant was clicked while the watering-can tool is active. */
+  | { type: "water"; id: NoteId };
 
 export interface Renderer {
   mount(host: HTMLElement): void;

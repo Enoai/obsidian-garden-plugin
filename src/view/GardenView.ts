@@ -88,7 +88,7 @@ export class GardenView extends ItemView {
         // Watering is a gentle, reversible action — no confirm, just do it.
         if (e.kind === "watering") void this.performWater(e.id);
         else this.showStructureConfirm(e.id, e.kind, e.clientX, e.clientY);
-      }
+      } else if (e.type === "water") void this.performWater(e.id);
     });
 
     // Tooltip lives above the canvas; keeping the pointer on it cancels the hide

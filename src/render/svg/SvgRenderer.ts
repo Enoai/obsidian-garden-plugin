@@ -74,8 +74,16 @@ export class SvgRenderer implements Renderer {
 
   // Interaction state.
   private panning = false;
+  private panMoved = false;
   private panStart = { x: 0, y: 0, tx: 0, ty: 0 };
+  private downOnCan = false;
   private plantDrag: PlantDrag | null = null;
+
+  // Watering-can tool.
+  private wateringMode = false;
+  private pendingWater: { id: NoteId; startX: number; startY: number; moved: boolean } | null = null;
+  private canCursor: HTMLDivElement | null = null;
+  private escHandler: ((e: KeyboardEvent) => void) | null = null;
 
   mount(host: HTMLElement): void {
     const doc = host.ownerDocument;
@@ -95,6 +103,24 @@ export class SvgRenderer implements Renderer {
     this.worldLayer = world;
     this.plantsLayer = plants;
     this.overlayLayer = overlay;
+
+    // A watering can that follows the cursor while the tool is active.
+    const cursor = doc.createElement("div");
+    cursor.className = "garden-can-cursor";
+    cursor.innerHTML =
+      "<svg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>" +
+      "<rect x='9' y='14' width='15' height='12' rx='3' fill='#4a9d8e' stroke='#37796d'/>" +
+      "<path d='M12 14 Q16 6 21 14' fill='none' stroke='#37796d' stroke-width='2'/>" +
+      "<path d='M9 18 L2 13' stroke='#37796d' stroke-width='2' stroke-linecap='round'/>" +
+      "<ellipse cx='2' cy='13' rx='2.4' ry='1.6' fill='#37796d'/></svg>";
+    cursor.hidden = true;
+    host.appendChild(cursor);
+    this.canCursor = cursor;
+
+    this.escHandler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && this.wateringMode) this.exitWatering();
+    };
+    window.addEventListener("keydown", this.escHandler);
 
     this.attachControls(host, doc);
     this.applyTransform();
@@ -266,11 +292,7 @@ export class SvgRenderer implements Renderer {
       { passive: false },
     );
 
-    svg.addEventListener("pointerdown", (e: PointerEvent) => {
-      const plantEl = e.target instanceof Element ? e.target.closest(".garden-plant") : null;
-      if (plantEl instanceof SVGGElement) this.beginPlantDrag(plantEl, e);
-      else this.beginPan(e);
-    });
+    svg.addEventListener("pointerdown", (e: PointerEvent) => this.onPointerDown(e));
     svg.addEventListener("pointermove", (e: PointerEvent) => this.onPointerMove(e));
     const end = (e: PointerEvent) => this.onPointerUp(e);
     svg.addEventListener("pointerup", end);
@@ -296,8 +318,36 @@ export class SvgRenderer implements Renderer {
     this.controls = controls;
   }
 
+  private onPointerDown(e: PointerEvent): void {
+    const { wx, wy } = this.clientToWorld(e.clientX, e.clientY);
+    const plantEl = e.target instanceof Element ? e.target.closest(".garden-plant") : null;
+    const onCan = this.structureAt(wx, wy)?.kind === "watering";
+
+    if (this.wateringMode) {
+      if (plantEl instanceof SVGGElement) {
+        const id = plantEl.getAttribute("data-id");
+        if (id) {
+          this.pendingWater = { id, startX: e.clientX, startY: e.clientY, moved: false };
+          this.svg?.setPointerCapture(e.pointerId);
+          return;
+        }
+      }
+      this.beginPan(e); // pan (or click-to-exit) while the tool is active
+      this.downOnCan = onCan;
+      return;
+    }
+
+    if (plantEl instanceof SVGGElement) {
+      this.beginPlantDrag(plantEl, e);
+      return;
+    }
+    this.beginPan(e);
+    this.downOnCan = onCan;
+  }
+
   private beginPan(e: PointerEvent): void {
     this.panning = true;
+    this.panMoved = false;
     this.panStart = { x: e.clientX, y: e.clientY, tx: this.tx, ty: this.ty };
     this.svg?.setPointerCapture(e.pointerId);
     this.svg?.classList.add("grabbing");
@@ -324,6 +374,20 @@ export class SvgRenderer implements Renderer {
   }
 
   private onPointerMove(e: PointerEvent): void {
+    if (this.wateringMode && this.canCursor && !this.canCursor.hidden) {
+      const rect = this.svg?.getBoundingClientRect();
+      if (rect) {
+        this.canCursor.style.left = `${e.clientX - rect.left - 2}px`;
+        this.canCursor.style.top = `${e.clientY - rect.top - 13}px`;
+      }
+    }
+
+    const pw = this.pendingWater;
+    if (pw) {
+      if (Math.abs(e.clientX - pw.startX) + Math.abs(e.clientY - pw.startY) > DRAG_THRESHOLD) pw.moved = true;
+      return;
+    }
+
     const drag = this.plantDrag;
     if (drag) {
       if (Math.abs(e.clientX - drag.startX) + Math.abs(e.clientY - drag.startY) > DRAG_THRESHOLD) {
@@ -334,7 +398,11 @@ export class SvgRenderer implements Renderer {
       if (drag.moved) this.updateHighlight(wx, wy, drag.srcKey);
       return;
     }
+
     if (this.panning) {
+      if (Math.abs(e.clientX - this.panStart.x) + Math.abs(e.clientY - this.panStart.y) > DRAG_THRESHOLD) {
+        this.panMoved = true;
+      }
       this.tx = this.panStart.tx + (e.clientX - this.panStart.x);
       this.ty = this.panStart.ty + (e.clientY - this.panStart.y);
       this.applyTransform();
@@ -342,6 +410,14 @@ export class SvgRenderer implements Renderer {
   }
 
   private onPointerUp(e: PointerEvent): void {
+    const pw = this.pendingWater;
+    if (pw) {
+      this.pendingWater = null;
+      this.svg?.releasePointerCapture(e.pointerId);
+      if (!pw.moved) this.handler?.({ type: "water", id: pw.id });
+      return;
+    }
+
     const drag = this.plantDrag;
     if (drag) {
       this.plantDrag = null;
@@ -381,11 +457,36 @@ export class SvgRenderer implements Renderer {
       }
       return;
     }
+
     if (this.panning) {
       this.panning = false;
       this.svg?.releasePointerCapture(e.pointerId);
       this.svg?.classList.remove("grabbing");
+      if (!this.panMoved) {
+        // A click (no drag): on the can → toggle the tool; elsewhere while the
+        // tool is active → put it down.
+        if (this.downOnCan) this.toggleWatering();
+        else if (this.wateringMode) this.exitWatering();
+      }
+      this.downOnCan = false;
     }
+  }
+
+  private toggleWatering(): void {
+    if (this.wateringMode) this.exitWatering();
+    else this.enterWatering();
+  }
+
+  private enterWatering(): void {
+    this.wateringMode = true;
+    this.svg?.classList.add("garden-watering");
+    if (this.canCursor) this.canCursor.hidden = false;
+  }
+
+  private exitWatering(): void {
+    this.wateringMode = false;
+    this.svg?.classList.remove("garden-watering");
+    if (this.canCursor) this.canCursor.hidden = true;
   }
 
   /** The deepest (innermost) bed under the point, so drops target the most
@@ -455,6 +556,9 @@ export class SvgRenderer implements Renderer {
   destroy(): void {
     this.svg?.remove();
     this.controls?.remove();
+    this.canCursor?.remove();
+    if (this.escHandler) window.removeEventListener("keydown", this.escHandler);
+    this.escHandler = null;
     this.svg = null;
     this.camera = null;
     this.worldLayer = null;
@@ -462,7 +566,10 @@ export class SvgRenderer implements Renderer {
     this.overlayLayer = null;
     this.highlight = null;
     this.controls = null;
+    this.canCursor = null;
     this.lastGarden = null;
+    this.wateringMode = false;
+    this.pendingWater = null;
     this.nodes.clear();
     this.sigs.clear();
     this.worldSig = "";
