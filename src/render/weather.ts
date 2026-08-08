@@ -36,22 +36,22 @@ function styled(doc: Document, background: string, borderRadius: string): HTMLEl
 const SEASONS: Record<Season, SeasonSpec> = {
   spring: {
     tint: "rgba(150, 210, 140, 0.05)",
-    count: 22,
+    count: 14,
     make: (doc) => styled(doc, pick(["#f2b8cd", "#e88ba9", "#f4c9d6"]), "50% 0 50% 0"),
   },
   summer: {
     tint: "rgba(255, 210, 120, 0.05)",
-    count: 14,
+    count: 9,
     make: (doc) => styled(doc, "rgba(245, 225, 120, 0.7)", "50%"),
   },
   autumn: {
     tint: "rgba(210, 140, 60, 0.07)",
-    count: 26,
+    count: 16,
     make: (doc) => styled(doc, pick(["#c56a2c", "#d98a3a", "#a8471f", "#c9a13a"]), "0 100% 0 100%"),
   },
   winter: {
     tint: "rgba(150, 180, 220, 0.08)",
-    count: 40,
+    count: 22,
     make: (doc) => styled(doc, "rgba(255, 255, 255, 0.9)", "50%"),
   },
 };

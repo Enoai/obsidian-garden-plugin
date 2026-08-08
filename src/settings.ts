@@ -13,6 +13,7 @@ export interface GardenSettings {
   archiveFolder: string;
   season: SeasonSetting;
   theme: string;
+  sway: boolean;
   debounceMs: number;
   /** Manual arrangement (drag-to-place). Not shown in the settings UI. */
   placement: Placement;
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: GardenSettings = {
   archiveFolder: "Archive",
   season: "auto",
   theme: "Verdant",
+  sway: true,
   debounceMs: 250,
   placement: emptyPlacement(),
 };
@@ -116,6 +118,17 @@ export class GardenSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
             this.plugin.refreshViews();
           }),
+      );
+
+    new Setting(containerEl)
+      .setName("Plant sway")
+      .setDesc("Gentle ambient motion. Turn off to reduce CPU usage on large vaults.")
+      .addToggle((t) =>
+        t.setValue(this.plugin.settings.sway).onChange(async (v) => {
+          this.plugin.settings.sway = v;
+          await this.plugin.saveSettings();
+          this.plugin.refreshViews();
+        }),
       );
 
     new Setting(containerEl)

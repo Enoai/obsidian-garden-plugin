@@ -59,6 +59,7 @@ export default class GardenPlugin extends Plugin {
       getConfig,
       archiveFolder: this.settings.archiveFolder,
       getSeason: () => this.settings.season,
+      getSway: () => this.settings.sway,
       debounceMs: this.settings.debounceMs,
       getPlacement,
       setPlacement,

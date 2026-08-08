@@ -29,6 +29,9 @@ const DRAG_THRESHOLD = 4;
 // Watering targets the whole plant box plus this margin, so small plants are
 // easy to hit.
 const WATER_HIT_PAD = 12;
+// Above this many plants on screen, sway is switched off entirely — at that
+// zoom the motion is imperceptible anyway, and it's where CPU cost blows up.
+const SWAY_CAP = 80;
 // Height of a bed's header strip (its signpost) — the grab handle for moving a
 // bed. Mirrors GardenLayout's `header`.
 const BED_HEADER = 22;
@@ -80,6 +83,8 @@ export class SvgRenderer implements Renderer {
   private lastThemeName = "";
   private handler: ((e: PlantEvent) => void) | null = null;
   private lastGarden: PositionedGarden | null = null;
+  private resizeObs: ResizeObserver | null = null;
+  private cullTimer: number | null = null;
 
   constructor(private getTheme: () => Theme = () => DEFAULT_THEME) {}
 
@@ -126,6 +131,14 @@ export class SvgRenderer implements Renderer {
     this.worldLayer = world;
     this.plantsLayer = plants;
     this.overlayLayer = overlay;
+
+    // Fit once the pane actually has a size (replaces a requestAnimationFrame
+    // busy-loop), and re-cull sway when the pane resizes.
+    this.resizeObs = new ResizeObserver(() => {
+      if (!this.fitted) this.fit();
+      this.scheduleCull();
+    });
+    this.resizeObs.observe(svg);
 
     // A watering can that follows the cursor while the tool is active.
     const cursor = doc.createElement("div");
@@ -248,10 +261,8 @@ export class SvgRenderer implements Renderer {
       if (node) layer.appendChild(node);
     }
 
-    if (!this.fitted) {
-      this.fitted = true;
-      this.scheduleFit();
-    }
+    if (!this.fitted) this.fit(); // no-op until the pane has a size (ResizeObserver retries)
+    this.updateCull();
   }
 
   private renderWorld(doc: Document, width: number, height: number, beds: Bed[], structures: Structure[]): void {
@@ -287,6 +298,7 @@ export class SvgRenderer implements Renderer {
 
   private applyTransform(): void {
     this.camera?.setAttribute("transform", `translate(${this.tx}, ${this.ty}) scale(${this.scale})`);
+    this.scheduleCull();
   }
 
   private clientToWorld(cx: number, cy: number): { wx: number; wy: number } {
@@ -306,23 +318,60 @@ export class SvgRenderer implements Renderer {
     this.applyTransform();
   }
 
-  private scheduleFit(): void {
-    requestAnimationFrame(() => this.fit());
-  }
-
   fit(): void {
     const svg = this.svg;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0 || this.contentW === 0) {
-      requestAnimationFrame(() => this.fit());
-      return;
-    }
+    // Not laid out yet — the ResizeObserver will call us again once it has size.
+    if (rect.width === 0 || rect.height === 0 || this.contentW === 0) return;
     const k = Math.min(rect.width / this.contentW, rect.height / this.contentH) * 0.98;
     this.scale = clamp(k, MIN_SCALE, MAX_SCALE);
     this.tx = (rect.width - this.contentW * this.scale) / 2;
     this.ty = Math.max(8, (rect.height - this.contentH * this.scale) / 2);
+    this.fitted = true;
     this.applyTransform();
+  }
+
+  private scheduleCull(): void {
+    if (this.cullTimer !== null) clearTimeout(this.cullTimer);
+    this.cullTimer = window.setTimeout(() => {
+      this.cullTimer = null;
+      this.updateCull();
+    }, 120);
+  }
+
+  /** Sway only plants inside the camera viewport (and none when too many are on
+   *  screen). Off-screen plants get `garden-still`, which stops their animation. */
+  private updateCull(): void {
+    const svg = this.svg;
+    const garden = this.lastGarden;
+    if (!svg || !garden) return;
+    const rect = svg.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const m = 160;
+    const left = -this.tx / this.scale - m;
+    const top = -this.ty / this.scale - m;
+    const right = (rect.width - this.tx) / this.scale + m;
+    const bottom = (rect.height - this.ty) / this.scale + m;
+
+    const visible = new Map<NoteId, boolean>();
+    let visCount = 0;
+    for (const [id, p] of garden.plants) {
+      const v =
+        p.position.x + PLANT_WIDTH >= left &&
+        p.position.x <= right &&
+        p.position.y + PLANT_HEIGHT >= top &&
+        p.position.y <= bottom;
+      visible.set(id, v);
+      if (v) visCount++;
+    }
+    const over = visCount > SWAY_CAP;
+    for (const [id, node] of this.nodes) {
+      const still = over || !visible.get(id);
+      if (node.classList.contains("garden-still") !== still) {
+        node.classList.toggle("garden-still", still);
+      }
+    }
   }
 
   // --- Pointer interaction --------------------------------------------------
@@ -701,6 +750,10 @@ export class SvgRenderer implements Renderer {
   }
 
   destroy(): void {
+    this.resizeObs?.disconnect();
+    this.resizeObs = null;
+    if (this.cullTimer !== null) clearTimeout(this.cullTimer);
+    this.cullTimer = null;
     this.svg?.remove();
     this.controls?.remove();
     this.canCursor?.remove();

@@ -110,7 +110,6 @@
   transform-box: fill-box;
   transform-origin: bottom center;
   animation: garden-sway 6s ease-in-out infinite alternate;
-  will-change: transform;
 }
 
 @keyframes garden-sway {
@@ -120,6 +119,19 @@
   to {
     transform: rotate(2.6deg);
   }
+}
+
+/* Sway is disabled per-plant when off-screen (garden-still), globally by the
+ * setting (garden-no-sway), and paused when the pane isn't visible
+ * (garden-paused) — this is what keeps idle CPU down on large vaults. */
+.garden-plant.garden-still .garden-foliage,
+.garden-view.garden-no-sway .garden-foliage {
+  animation: none;
+}
+
+.garden-view.garden-paused .garden-foliage,
+.garden-view.garden-paused .garden-flake {
+  animation-play-state: paused;
 }
 
 /* Respect users who prefer less motion. */

@@ -25,4 +25,9 @@ Initial release.
 - Built-in themes (Verdant, Dusk, Amber) and theme packs — palette (JSON) and
   sprite (bring-your-own art) tiers.
 
+### Performance
+- Ambient sway only animates plants on screen (and stops entirely above a cap),
+  pauses when the garden isn't visible, and can be turned off in settings.
+- Removed per-plant compositor layers and a fit() busy-loop.
+
 [1.0.0]: https://github.com/Enoai/obsidian-garden-plugin/releases/tag/1.0.0
