@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300" role="img" aria-label="Obsidian Garden — a garden bed of painterly plants on grass inside a wooden fence">
+  <rect x="0" y="0" width="720" height="300" rx="20" fill="#9cbf6a"/>
+  <rect x="0" y="0" width="720" height="300" rx="20" fill="#000000" fill-opacity="0.04"/>
+
+  <!-- garden bed -->
+  <rect x="110" y="128" width="500" height="150" rx="18" fill="#5f4326"/>
+  <rect x="110" y="128" width="500" height="145" rx="18" fill="#7c5230"/>
+  <rect x="114" y="132" width="492" height="133" rx="14" fill="#875a37"/>
+
+  <!-- tufts -->
+  <g stroke="#7ba650" stroke-width="1.6" fill="none" stroke-linecap="round">
+    <path d="M37 62 q-1.2 -6 -0.75 -9"/><path d="M40 62 q0 -6 0 -9"/><path d="M43 62 q1.2 -6 0.75 -9"/>
+    <path d="M677 72 q-1.2 -6 -0.75 -9"/><path d="M680 72 q0 -6 0 -9"/><path d="M683 72 q1.2 -6 0.75 -9"/>
+    <path d="M57 250 q-1.2 -6 -0.75 -9"/><path d="M60 250 q0 -6 0 -9"/><path d="M63 250 q1.2 -6 0.75 -9"/>
+    <path d="M657 238 q-1.2 -6 -0.75 -9"/><path d="M660 238 q0 -6 0 -9"/><path d="M663 238 q1.2 -6 0.75 -9"/>
+  </g>
+
+  <!-- bush -->
+  <g>
+    <ellipse cx="210" cy="258" rx="24" ry="6" fill="#5f4326"/>
+    <ellipse cx="210" cy="255" rx="20" ry="4" fill="#6f5030"/>
+    <path d="M210 258 C210 234 210 222 210 210" stroke="#2f5f16" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="196" cy="216" rx="20" ry="13" fill="#2f5f16"/>
+    <ellipse cx="226" cy="212" rx="18" ry="12" fill="#2f5f16"/>
+    <ellipse cx="204" cy="204" rx="22" ry="15" fill="#4e7d1a"/>
+    <ellipse cx="220" cy="220" rx="17" ry="12" fill="#4e7d1a"/>
+    <ellipse cx="200" cy="197" rx="13" ry="9" fill="#8cc152"/>
+    <ellipse cx="216" cy="207" rx="11" ry="8" fill="#8cc152"/>
+  </g>
+
+  <!-- flowering plant -->
+  <g>
+    <ellipse cx="360" cy="262" rx="30" ry="7" fill="#5f4326"/>
+    <ellipse cx="360" cy="259" rx="25" ry="5" fill="#6f5030"/>
+    <path d="M360 262 C360 226 360 210 360 194" stroke="#2f5f16" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="338" cy="202" rx="24" ry="16" fill="#2f5f16"/>
+    <ellipse cx="382" cy="198" rx="22" ry="15" fill="#2f5f16"/>
+    <ellipse cx="348" cy="186" rx="27" ry="19" fill="#4e7d1a"/>
+    <ellipse cx="374" cy="208" rx="20" ry="14" fill="#4e7d1a"/>
+    <ellipse cx="344" cy="176" rx="15" ry="11" fill="#8cc152"/>
+    <ellipse cx="372" cy="190" rx="13" ry="10" fill="#8cc152"/>
+    <g fill="#e8749f">
+      <circle cx="350" cy="179" r="5"/><circle cx="355" cy="182" r="5"/><circle cx="353" cy="188" r="5"/><circle cx="347" cy="188" r="5"/><circle cx="345" cy="182" r="5"/>
+    </g>
+    <circle cx="350" cy="184" r="3.6" fill="#f2b705"/>
+    <g fill="#e8749f">
+      <circle cx="372" cy="196" r="4"/><circle cx="376" cy="198.5" r="4"/><circle cx="374.5" cy="203" r="4"/><circle cx="369.5" cy="203" r="4"/><circle cx="368" cy="198.5" r="4"/>
+    </g>
+    <circle cx="372" cy="200" r="2.8" fill="#f2b705"/>
+  </g>
+
+  <!-- tree -->
+  <g>
+    <ellipse cx="510" cy="258" rx="26" ry="6" fill="#5f4326"/>
+    <path d="M506 258 L507 226 L513 226 L514 258 Z" fill="#6e4a28"/>
+    <ellipse cx="492" cy="224" rx="22" ry="16" fill="#2f5f16"/>
+    <ellipse cx="528" cy="222" rx="20" ry="15" fill="#2f5f16"/>
+    <ellipse cx="506" cy="210" rx="26" ry="19" fill="#4e7d1a"/>
+    <ellipse cx="524" cy="228" rx="18" ry="14" fill="#4e7d1a"/>
+    <ellipse cx="500" cy="202" rx="15" ry="11" fill="#8cc152"/>
+    <ellipse cx="520" cy="214" rx="13" ry="10" fill="#8cc152"/>
+  </g>
+
+  <!-- fence -->
+  <rect x="8" y="8" width="704" height="284" rx="16" fill="none" stroke="#8a5f31" stroke-width="3" stroke-opacity="0.5"/>
+  <g fill="#8a5f31">
+    <rect x="10" y="9" width="8" height="22" rx="2"/>
+    <rect x="702" y="9" width="8" height="22" rx="2"/>
+    <rect x="10" y="269" width="8" height="22" rx="2"/>
+    <rect x="702" y="269" width="8" height="22" rx="2"/>
+  </g>
+</svg>

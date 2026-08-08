@@ -118,6 +118,27 @@ npm test
 - Run `npm run build` and `npm test` before opening a PR.
 - Describe the user-visible effect and the phase it belongs to.
 
+## Releasing
+
+Releases are automated by [`.github/workflows/release.yml`](../.github/workflows/release.yml).
+
+1. Bump the version in **three** places to the same value: `manifest.json`,
+   `package.json`, and add an entry to `versions.json` mapping the new version to
+   the minimum Obsidian version.
+2. Update `CHANGELOG.md`.
+3. Commit, then tag and push:
+   ```bash
+   git tag 0.1.0
+   git push --tags
+   ```
+4. CI runs tests, builds, and publishes a GitHub release with `main.js`,
+   `manifest.json`, and `styles.css` attached — the three files a user (or the
+   community plugin browser) needs.
+
+To build a release locally instead: `npm run build`, then attach those three
+files to a release yourself. `main.js` is git-ignored on purpose — it's a build
+artifact, produced fresh for each release.
+
 ## A note on scope
 
 This is a weekend-scale, single-purpose plugin, deliberately. Before adding a
