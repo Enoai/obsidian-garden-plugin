@@ -25,6 +25,9 @@ const TUFT_STEP = 46;
 const MIN_SCALE = 0.15;
 const MAX_SCALE = 4;
 const DRAG_THRESHOLD = 4;
+// Height of a bed's header strip (its signpost) — the grab handle for moving a
+// bed. Mirrors GardenLayout's `header`.
+const BED_HEADER = 22;
 
 function signature(p: PositionedPlant): string {
   const f = Math.round(p.health.freshness * 20);
@@ -47,6 +50,15 @@ interface PlantDrag {
   offY: number;
   startX: number;
   startY: number;
+  moved: boolean;
+}
+
+interface BedDrag {
+  bed: Bed;
+  startWx: number;
+  startWy: number;
+  dx: number;
+  dy: number;
   moved: boolean;
 }
 
@@ -78,6 +90,7 @@ export class SvgRenderer implements Renderer {
   private panStart = { x: 0, y: 0, tx: 0, ty: 0 };
   private downOnCan = false;
   private plantDrag: PlantDrag | null = null;
+  private bedDrag: BedDrag | null = null;
 
   // Watering-can tool.
   private wateringMode = false;
@@ -146,6 +159,8 @@ export class SvgRenderer implements Renderer {
       maxY = Math.max(maxY, b.y + b.height);
     }
     for (const p of garden.plants.values()) {
+      minX = Math.min(minX, p.position.x);
+      minY = Math.min(minY, p.position.y);
       maxX = Math.max(maxX, p.position.x + PLANT_WIDTH);
       maxY = Math.max(maxY, p.position.y + PLANT_HEIGHT);
     }
@@ -314,6 +329,7 @@ export class SvgRenderer implements Renderer {
     button("−", "Zoom out", () => zoomButton(1 / 1.2));
     button("⤢", "Fit to view", () => this.fit());
     button("+", "Zoom in", () => zoomButton(1.2));
+    button("↺", "Reset arrangement", () => this.handler?.({ type: "resetLayout" }));
     host.appendChild(controls);
     this.controls = controls;
   }
@@ -341,8 +357,26 @@ export class SvgRenderer implements Renderer {
       this.beginPlantDrag(plantEl, e);
       return;
     }
+    const headerBed = this.bedHeaderAt(wx, wy);
+    if (headerBed) {
+      this.bedDrag = { bed: headerBed, startWx: wx, startWy: wy, dx: 0, dy: 0, moved: false };
+      this.svg?.setPointerCapture(e.pointerId);
+      return;
+    }
     this.beginPan(e);
     this.downOnCan = onCan;
+  }
+
+  /** Deepest bed whose header strip (signpost) contains the point — the handle
+   *  for dragging a bed. */
+  private bedHeaderAt(wx: number, wy: number): Bed | null {
+    let best: Bed | null = null;
+    for (const b of this.lastGarden?.beds ?? []) {
+      if (wx >= b.x && wx <= b.x + b.width && wy >= b.y && wy <= b.y + BED_HEADER) {
+        if (!best || b.depth > best.depth) best = b;
+      }
+    }
+    return best;
   }
 
   private beginPan(e: PointerEvent): void {
@@ -388,6 +422,16 @@ export class SvgRenderer implements Renderer {
       return;
     }
 
+    const bd = this.bedDrag;
+    if (bd) {
+      const { wx, wy } = this.clientToWorld(e.clientX, e.clientY);
+      bd.dx = wx - bd.startWx;
+      bd.dy = wy - bd.startWy;
+      if (Math.abs(bd.dx) + Math.abs(bd.dy) > DRAG_THRESHOLD) bd.moved = true;
+      this.showHighlight(bd.bed.x + bd.dx, bd.bed.y + bd.dy, bd.bed.width, bd.bed.height);
+      return;
+    }
+
     const drag = this.plantDrag;
     if (drag) {
       if (Math.abs(e.clientX - drag.startX) + Math.abs(e.clientY - drag.startY) > DRAG_THRESHOLD) {
@@ -415,6 +459,15 @@ export class SvgRenderer implements Renderer {
       this.pendingWater = null;
       this.svg?.releasePointerCapture(e.pointerId);
       if (!pw.moved) this.handler?.({ type: "water", id: pw.id });
+      return;
+    }
+
+    const bd = this.bedDrag;
+    if (bd) {
+      this.bedDrag = null;
+      this.svg?.releasePointerCapture(e.pointerId);
+      this.clearHighlight();
+      if (bd.moved) this.handler?.({ type: "moveBed", key: bd.bed.key, dx: bd.dx, dy: bd.dy });
       return;
     }
 
@@ -453,7 +506,8 @@ export class SvgRenderer implements Renderer {
         });
         // Leave the plant where it was dropped until the view confirms/cancels.
       } else {
-        this.rerender(); // snap back
+        // Dropped on the lawn or its own bed → remember this spot.
+        this.handler?.({ type: "placePlant", id: drag.id, x: wx - drag.offX, y: wy - drag.offY });
       }
       return;
     }
@@ -570,6 +624,7 @@ export class SvgRenderer implements Renderer {
     this.lastGarden = null;
     this.wateringMode = false;
     this.pendingWater = null;
+    this.bedDrag = null;
     this.nodes.clear();
     this.sigs.clear();
     this.worldSig = "";

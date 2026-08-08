@@ -41,15 +41,22 @@ export default class GardenPlugin extends Plugin {
       freshnessHalfLifeDays: this.settings.freshnessHalfLifeDays,
       connectivitySaturation: this.settings.connectivitySaturation,
     });
+    const getPlacement = () => this.settings.placement;
+    const setPlacement = async (p: typeof this.settings.placement): Promise<void> => {
+      this.settings.placement = p;
+      await this.saveSettings();
+    };
     return {
       adapter: new ObsidianVaultAdapter(this.app),
       mutator: new ObsidianVaultMutator(this.app),
       model: new GardenModel(getConfig()),
-      layout: new GardenLayout({ plantWidth: PLANT_WIDTH, plantHeight: PLANT_HEIGHT }),
+      layout: new GardenLayout({ plantWidth: PLANT_WIDTH, plantHeight: PLANT_HEIGHT, getPlacement }),
       renderer: new SvgRenderer(),
       getConfig,
       archiveFolder: this.settings.archiveFolder,
       debounceMs: this.settings.debounceMs,
+      getPlacement,
+      setPlacement,
     };
   }
 

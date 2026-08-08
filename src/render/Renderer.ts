@@ -24,7 +24,13 @@ export type PlantEvent =
    *  watering → refresh). */
   | { type: "droppedStructure"; id: NoteId; kind: "shed" | "compost" | "watering"; clientX: number; clientY: number }
   /** A plant was clicked while the watering-can tool is active. */
-  | { type: "water"; id: NoteId };
+  | { type: "water"; id: NoteId }
+  /** A plant was dropped on the lawn or its own bed — remember it here. */
+  | { type: "placePlant"; id: NoteId; x: number; y: number }
+  /** A bed was dragged by its signpost by (dx, dy) in world units. */
+  | { type: "moveBed"; key: string; dx: number; dy: number }
+  /** The user asked to clear all manual arrangement. */
+  | { type: "resetLayout" };
 
 export interface Renderer {
   mount(host: HTMLElement): void;

@@ -10,7 +10,16 @@
  * correctly. Footprint size is passed in from the renderer to stay decoupled
  * from how plants are drawn.
  */
-import { Bed, GardenState, NoteId, PositionedGarden, PositionedPlant, Structure } from "../model/types";
+import {
+  Bed,
+  GardenState,
+  NoteId,
+  Placement,
+  PositionedGarden,
+  PositionedPlant,
+  Structure,
+  emptyPlacement,
+} from "../model/types";
 import { hashString } from "../util/hash";
 import { clamp } from "../util/math";
 import { Layout } from "./Layout";
@@ -33,7 +42,11 @@ export interface GardenLayoutOptions {
   aspect: number;
   /** Outer margin around the whole garden (room for the fence). */
   margin: number;
+  /** Reads the current manual arrangement to overlay on the auto-layout. */
+  getPlacement?: () => Placement;
 }
+
+const MIN_XY = 8;
 
 const DEFAULTS: GardenLayoutOptions = {
   plantWidth: 104,
@@ -121,6 +134,7 @@ export class GardenLayout implements Layout {
 
   place(garden: GardenState): PositionedGarden {
     const o = this.opts;
+    const placement = o.getPlacement?.() ?? emptyPlacement();
     const memo = new Map<FolderNode, Measured>();
     const root = buildTree([...garden.plants.keys()].sort());
 
@@ -153,7 +167,7 @@ export class GardenLayout implements Layout {
     const beds: Bed[] = [];
     const plants = new Map<NoteId, PositionedPlant>();
     topItems.forEach((node, i) => {
-      this.placeNode(node, o.margin + pos[i].x, bedsTop + pos[i].y, 0, beds, plants, memo, garden);
+      this.placeNode(node, o.margin + pos[i].x, bedsTop + pos[i].y, 0, beds, plants, memo, garden, placement);
     });
 
     // Back-to-front so overlapping canopies stack correctly.
@@ -211,25 +225,33 @@ export class GardenLayout implements Layout {
     plants: Map<NoteId, PositionedPlant>,
     memo: Map<FolderNode, Measured>,
     garden: GardenState,
+    placement: Placement,
   ): void {
     const o = this.opts;
+    // Apply this bed's manual offset; its children/plants ride along.
+    const off = placement.beds[node.key];
+    const bx = Math.max(MIN_XY, off ? ox + off.x : ox);
+    const by = Math.max(MIN_XY, off ? oy + off.y : oy);
+
     const m = this.measure(node, memo);
-    beds.push({ key: node.key, label: node.name, depth, x: ox, y: oy, width: m.w, height: m.h });
+    beds.push({ key: node.key, label: node.name, depth, x: bx, y: by, width: m.w, height: m.h });
 
     for (const item of m.items) {
-      const ax = ox + item.lx;
-      const ay = oy + item.ly;
+      const ax = bx + item.lx;
+      const ay = by + item.ly;
       if (item.kind === "plant") {
         const plant = garden.plants.get(item.id);
         if (!plant) continue;
-        const jx = clamp(jitter(item.id, "x", o.jitter), -o.jitter, o.jitter);
-        const jy = clamp(jitter(item.id, "y", o.jitter), -o.jitter, o.jitter);
-        plants.set(item.id, {
-          ...plant,
-          position: { x: ax + o.jitter + jx, y: ay + o.jitter + jy },
-        });
+        const manual = placement.plants[item.id];
+        const position = manual
+          ? { x: Math.max(MIN_XY, manual.x), y: Math.max(MIN_XY, manual.y) }
+          : {
+              x: ax + o.jitter + clamp(jitter(item.id, "x", o.jitter), -o.jitter, o.jitter),
+              y: ay + o.jitter + clamp(jitter(item.id, "y", o.jitter), -o.jitter, o.jitter),
+            };
+        plants.set(item.id, { ...plant, position });
       } else {
-        this.placeNode(item.node, ax, ay, depth + 1, beds, plants, memo, garden);
+        this.placeNode(item.node, ax, ay, depth + 1, beds, plants, memo, garden, placement);
       }
     }
   }

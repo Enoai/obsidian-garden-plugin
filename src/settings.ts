@@ -3,6 +3,7 @@
  * fields feed straight into `ScoringConfig` (see main.ts `buildDeps`).
  */
 import { App, PluginSettingTab, Setting } from "obsidian";
+import { Placement, emptyPlacement } from "./model/types";
 import type GardenPlugin from "./main";
 
 export interface GardenSettings {
@@ -10,6 +11,8 @@ export interface GardenSettings {
   connectivitySaturation: number;
   archiveFolder: string;
   debounceMs: number;
+  /** Manual arrangement (drag-to-place). Not shown in the settings UI. */
+  placement: Placement;
 }
 
 export const DEFAULT_SETTINGS: GardenSettings = {
@@ -17,6 +20,7 @@ export const DEFAULT_SETTINGS: GardenSettings = {
   connectivitySaturation: 8,
   archiveFolder: "Archive",
   debounceMs: 250,
+  placement: emptyPlacement(),
 };
 
 export class GardenSettingTab extends PluginSettingTab {

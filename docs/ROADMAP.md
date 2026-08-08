@@ -54,10 +54,12 @@ packs, seasons/weather. All deferred — but their seams exist (see below).
 ## Phase 2 — The tended garden
 
 > **Status: in progress.** Working: drag a plant to another bed to move the
-> note (subfolder-aware, nested beds); drag to the **shed** to archive; to the
-> **compost** to trash (confirm); to the **watering can** to refresh a note's
-> freshness without opening it. All via `VaultMutator`. Still to come:
-> greenhouse (drafts) and persisted manual placement.
+> note (subfolder-aware, nested beds); drag to the **shed** to archive; **compost**
+> to trash (confirm); **watering can** to refresh — either by dropping a plant on
+> it or picking the can up as a tool and clicking plants. **Persisted manual
+> placement** — free-place plants, drag beds by their signpost, rearrange within
+> beds; all saved in plugin data, with a reset button. All mutations via
+> `VaultMutator`. Still to come: greenhouse (drafts).
 
 **Goal:** the garden becomes a place you *tend*. Gardening actions map to real
 vault operations.

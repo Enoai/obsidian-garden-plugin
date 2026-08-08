@@ -81,6 +81,17 @@ export interface Structure {
   height: number;
 }
 
+/** Persisted manual arrangement, overlaid on the auto-layout. `plants` are
+ *  absolute positions per note; `beds` are offsets from a folder's auto spot. */
+export interface Placement {
+  plants: Record<NoteId, Position>;
+  beds: Record<string, Position>;
+}
+
+export function emptyPlacement(): Placement {
+  return { plants: {}, beds: {} };
+}
+
 /** `GardenState` after a `Layout` has placed every plant. */
 export interface PositionedGarden {
   /** Insertion order is back-to-front (ascending y) so overlap layers right. */

@@ -10,7 +10,7 @@ import { VaultMutator } from "../data/VaultMutator";
 import { GardenModel } from "../model/GardenModel";
 import { Layout } from "../layout/Layout";
 import { Renderer } from "../render/Renderer";
-import { NoteId, PlantState, ScoringConfig, Stage } from "../model/types";
+import { NoteId, Placement, PlantState, ScoringConfig, Stage } from "../model/types";
 import { clamp } from "../util/math";
 import { debounce } from "../util/debounce";
 
@@ -25,6 +25,9 @@ export interface GardenViewDeps {
   getConfig: () => ScoringConfig;
   archiveFolder: string;
   debounceMs: number;
+  /** Read/persist the manual arrangement (drag-to-place). */
+  getPlacement: () => Placement;
+  setPlacement: (p: Placement) => Promise<void>;
 }
 
 /** Plain-English description of each stage — the "what's going on / what to do". */
@@ -89,6 +92,9 @@ export class GardenView extends ItemView {
         if (e.kind === "watering") void this.performWater(e.id);
         else this.showStructureConfirm(e.id, e.kind, e.clientX, e.clientY);
       } else if (e.type === "water") void this.performWater(e.id);
+      else if (e.type === "placePlant") void this.placePlant(e.id, e.x, e.y);
+      else if (e.type === "moveBed") void this.moveBed(e.key, e.dx, e.dy);
+      else if (e.type === "resetLayout") void this.resetLayout();
     });
 
     // Tooltip lives above the canvas; keeping the pointer on it cancels the hide
@@ -253,16 +259,19 @@ export class GardenView extends ItemView {
   }
 
   private async performMove(id: NoteId, toKey: string): Promise<void> {
+    this.clearPlantPlacement(id); // let it auto-place in its new bed
     await this.deps.mutator.move(id, toKey);
     this.refresh();
   }
 
   private async performArchive(id: NoteId): Promise<void> {
+    this.clearPlantPlacement(id);
     await this.deps.mutator.archive(id, this.deps.archiveFolder);
     this.refresh();
   }
 
   private async performTrash(id: NoteId): Promise<void> {
+    this.clearPlantPlacement(id);
     await this.deps.mutator.trash(id);
     this.refresh();
   }
@@ -272,6 +281,36 @@ export class GardenView extends ItemView {
     await this.deps.mutator.water(id);
     new Notice(`Watered “${title}”`);
     this.refresh();
+  }
+
+  private async placePlant(id: NoteId, x: number, y: number): Promise<void> {
+    const p = this.deps.getPlacement();
+    p.plants[id] = { x: Math.max(8, x), y: Math.max(8, y) };
+    await this.deps.setPlacement(p);
+    this.refresh();
+  }
+
+  private async moveBed(key: string, dx: number, dy: number): Promise<void> {
+    const p = this.deps.getPlacement();
+    const cur = p.beds[key] ?? { x: 0, y: 0 };
+    p.beds[key] = { x: cur.x + dx, y: cur.y + dy };
+    await this.deps.setPlacement(p);
+    this.refresh();
+  }
+
+  private async resetLayout(): Promise<void> {
+    await this.deps.setPlacement({ plants: {}, beds: {} });
+    this.refresh();
+  }
+
+  /** Drop a plant's manual position (e.g. when it moves folder, so it
+   *  auto-places in its new bed). */
+  private clearPlantPlacement(id: NoteId): void {
+    const p = this.deps.getPlacement();
+    if (p.plants[id]) {
+      delete p.plants[id];
+      void this.deps.setPlacement(p);
+    }
   }
 
   private openNote(id: string): void {
