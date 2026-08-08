@@ -57,9 +57,12 @@ export class ObsidianVaultMutator implements VaultMutator {
   async water(id: NoteId): Promise<void> {
     const file = this.app.vault.getAbstractFileByPath(id);
     if (!(file instanceof TFile)) return;
-    // Rewriting the same content bumps the file's modified time (the freshness
-    // signal) without changing what the note says. `process` is the preferred
-    // way to touch a file in the background.
-    await this.app.vault.process(file, (data) => data);
+    // "Watering" bumps the file's modified time (the freshness signal) without
+    // changing what the note says. We deliberately use `modify` rather than the
+    // usually-preferred `process`: `process` can skip the write when the content
+    // is unchanged, which would leave the modified time — and so the freshness —
+    // untouched.
+    const data = await this.app.vault.read(file);
+    await this.app.vault.modify(file, data);
   }
 }
