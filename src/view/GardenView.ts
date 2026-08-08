@@ -11,6 +11,7 @@ import { GardenModel } from "../model/GardenModel";
 import { Layout } from "../layout/Layout";
 import { Renderer } from "../render/Renderer";
 import { NoteId, Placement, PlantState, ScoringConfig, Stage } from "../model/types";
+import { Season, SeasonSetting, Weather, currentSeason } from "../render/weather";
 import { clamp } from "../util/math";
 import { debounce } from "../util/debounce";
 
@@ -24,6 +25,7 @@ export interface GardenViewDeps {
   renderer: Renderer;
   getConfig: () => ScoringConfig;
   archiveFolder: string;
+  getSeason: () => SeasonSetting;
   debounceMs: number;
   /** Read/persist the manual arrangement (drag-to-place). */
   getPlacement: () => Placement;
@@ -56,6 +58,8 @@ export class GardenView extends ItemView {
   private confirmEl: HTMLDivElement | null = null;
   private hideTimer: number | null = null;
   private plantsById: Map<NoteId, PlantState> = new Map();
+  private weather = new Weather();
+  private lastSeason: Season | "off" | null = null;
 
   constructor(
     leaf: WorkspaceLeaf,
@@ -82,6 +86,7 @@ export class GardenView extends ItemView {
     host.addClass("garden-view");
 
     this.deps.renderer.mount(host);
+    this.weather.mount(host);
     this.deps.renderer.on((e) => {
       if (e.type === "select") this.openNote(e.id);
       else if (e.type === "hover") this.showTooltip(e.id, e.rect);
@@ -122,6 +127,8 @@ export class GardenView extends ItemView {
     this.cancelHide();
     this.tooltipEl = null;
     this.confirmEl = null;
+    this.weather.destroy();
+    this.lastSeason = null;
     this.deps.renderer.destroy();
   }
 
@@ -133,6 +140,13 @@ export class GardenView extends ItemView {
     if (this.tooltipEl) this.tooltipEl.hidden = true;
     const positioned = this.deps.layout.place(state);
     this.deps.renderer.render(positioned);
+
+    const setting = this.deps.getSeason();
+    const resolved: Season | "off" = setting === "auto" ? currentSeason() : setting;
+    if (resolved !== this.lastSeason) {
+      this.weather.setSeason(resolved);
+      this.lastSeason = resolved;
+    }
   }
 
   private showTooltip(id: NoteId, rect: DOMRect): void {

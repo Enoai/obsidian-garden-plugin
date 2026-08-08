@@ -54,6 +54,7 @@ export default class GardenPlugin extends Plugin {
       renderer: new SvgRenderer(),
       getConfig,
       archiveFolder: this.settings.archiveFolder,
+      getSeason: () => this.settings.season,
       debounceMs: this.settings.debounceMs,
       getPlacement,
       setPlacement,

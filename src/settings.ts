@@ -4,12 +4,14 @@
  */
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { Placement, emptyPlacement } from "./model/types";
+import { SeasonSetting } from "./render/weather";
 import type GardenPlugin from "./main";
 
 export interface GardenSettings {
   freshnessHalfLifeDays: number;
   connectivitySaturation: number;
   archiveFolder: string;
+  season: SeasonSetting;
   debounceMs: number;
   /** Manual arrangement (drag-to-place). Not shown in the settings UI. */
   placement: Placement;
@@ -19,6 +21,7 @@ export const DEFAULT_SETTINGS: GardenSettings = {
   freshnessHalfLifeDays: 30,
   connectivitySaturation: 8,
   archiveFolder: "Archive",
+  season: "auto",
   debounceMs: 250,
   placement: emptyPlacement(),
 };
@@ -72,6 +75,26 @@ export class GardenSettingTab extends PluginSettingTab {
           .setPlaceholder("Archive")
           .onChange(async (v) => {
             this.plugin.settings.archiveFolder = v.trim() || "Archive";
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName("Season")
+      .setDesc("Seasonal tint and weather. Auto follows the current date.")
+      .addDropdown((d) =>
+        d
+          .addOptions({
+            auto: "Auto (by date)",
+            spring: "Spring",
+            summer: "Summer",
+            autumn: "Autumn",
+            winter: "Winter",
+            off: "Off",
+          })
+          .setValue(this.plugin.settings.season)
+          .onChange(async (v) => {
+            this.plugin.settings.season = v as SeasonSetting;
             await this.plugin.saveSettings();
           }),
       );

@@ -200,6 +200,51 @@
   cursor: pointer;
 }
 
+/* Seasonal weather overlay — floats above the garden, below the UI chrome. */
+.garden-weather {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.garden-weather-tint,
+.garden-weather-field {
+  position: absolute;
+  inset: 0;
+}
+
+.garden-flake {
+  position: absolute;
+  top: 0;
+  animation: garden-fall 8s linear infinite;
+}
+
+@keyframes garden-fall {
+  0% {
+    transform: translateY(-30px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.85;
+  }
+  90% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(100vh) translateX(var(--drift, 20px)) rotate(var(--spin, 180deg));
+    opacity: 0;
+  }
+}
+
+/* Keep the tint, drop the motion for users who prefer less of it. */
+@media (prefers-reduced-motion: reduce) {
+  .garden-weather-field {
+    display: none;
+  }
+}
+
 /* Shown while the first snapshot is being computed. */
 .garden-empty {
   display: flex;
