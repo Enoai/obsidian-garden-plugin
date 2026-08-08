@@ -5,15 +5,30 @@
  * than inverting with light/dark mode.
  */
 import { Bed, Structure } from "../../model/types";
+import { Theme } from "../theme";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-const GRASS = "#9cbf6a";
-const TUFT = "#7ba650";
-const SOIL_RIM = "#5f4326";
+// Palette — reassigned by applyWorldTheme() before each render.
+let GRASS = "#9cbf6a";
+let TUFT = "#7ba650";
+let SOIL_RIM = "#5f4326";
 // Nested beds get progressively lighter soil so depth reads at a glance.
-const SOIL_SHADES = ["#7c5230", "#8a5d38", "#986a41", "#a5764a"];
-const SOIL_TOP_SHADES = ["#875a37", "#946640", "#a1734a", "#ad7f54"];
+let SOIL_SHADES = ["#7c5230", "#8a5d38", "#986a41", "#a5764a"];
+let SOIL_TOP_SHADES = ["#875a37", "#946640", "#a1734a", "#ad7f54"];
+
+export function applyWorldTheme(theme: Theme): void {
+  GRASS = theme.world.grass;
+  TUFT = theme.world.tuft;
+  SOIL_RIM = theme.world.soilRim;
+  SOIL_SHADES = theme.world.soilShades;
+  SOIL_TOP_SHADES = theme.world.soilTopShades;
+  WOOD = theme.world.wood;
+  WOOD_DARK = theme.world.woodDark;
+  WOOD_TEXT = theme.world.woodText;
+  FENCE = theme.world.fence;
+  FENCE_DARK = theme.world.fenceDark;
+}
 
 function el(
   doc: Document,
@@ -60,9 +75,9 @@ export function drawTuft(doc: Document, x: number, y: number): SVGElement {
   return g;
 }
 
-const WOOD = "#c08a4e";
-const WOOD_DARK = "#8a5f31";
-const WOOD_TEXT = "#3f2a12";
+let WOOD = "#c08a4e";
+let WOOD_DARK = "#8a5f31";
+let WOOD_TEXT = "#3f2a12";
 const LABEL_HEIGHT = 16;
 
 /** A wooden header plaque naming the folder, sitting inside the bed's top strip
@@ -160,8 +175,8 @@ export function drawWateringCan(doc: Document, s: Structure): SVGElement {
   return g;
 }
 
-const FENCE = "#caa06a";
-const FENCE_DARK = "#8a5f31";
+let FENCE = "#caa06a";
+let FENCE_DARK = "#8a5f31";
 const PICKET_STEP = 22;
 const FENCE_INSET = 11;
 

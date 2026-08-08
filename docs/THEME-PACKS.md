@@ -1,82 +1,71 @@
-# Theme packs (Phase 3 — draft)
+# Theme packs
 
-> ⚠️ **Not implemented yet.** This is the design sketch for the Phase 3 pack
-> format so the [architecture](ARCHITECTURE.md) can be built with it in mind.
-> The shape below may change before it ships.
+Re-skin the garden with your own colours. A theme pack is a small JSON file of
+colour overrides — no code, no build step. This is the **palette tier**; a later
+sprite tier (bring-your-own plant art) will extend the same manifest.
 
-Theme packs let anyone re-skin the garden with their own art — no code. A pack
-is just a folder of assets plus a `manifest.json`. The plugin's sprite
-`Renderer` reads the manifest and draws with your assets instead of the built-in
-procedural plants. This is the same idea as Obsidian CSS themes and icon packs,
-and it's meant to spread the same way.
+## Using packs
 
-## Where packs live
+- Built-in themes ship with the plugin: **Verdant** (default), **Dusk**, **Amber**.
+  Pick one under *Settings → Garden → Theme*.
+- Drop your own `*.json` packs into the plugin's `themes/` folder:
+  `<vault>/.obsidian/plugins/obsidian-garden/themes/`. They appear in the Theme
+  dropdown by their `name`. (Reload the plugin after adding files.)
 
-```
-YourVault/.obsidian/plugins/obsidian-garden/packs/<pack-name>/
-├── manifest.json
-└── assets/…            # svg or png, referenced by manifest
-```
+## Pack format
 
-Any folder here with a valid `manifest.json` appears in the pack picker in
-settings.
-
-## `manifest.json` (sketch)
+Every field is optional — a pack is merged over the default, so you can override
+just a few colours. Foliage tones are `[r, g, b]` arrays (they're interpolated in
+code as a note ages); everything else is a CSS colour string.
 
 ```jsonc
 {
-  "name": "Cozy Cottage",
-  "author": "you",
-  "version": "1.0.0",
-  "format": 1,                     // pack format version, for forward-compat
+  "name": "My Pack",
 
-  // Plants by type → art per stage. Continuous health still tints/animates;
-  // stage selects which asset. "default" is the fallback type.
-  "plants": {
-    "default": {
-      "sprout":    "assets/sprout.svg",
-      "growing":   "assets/plant.svg",
-      "flowering": "assets/flower.svg",
-      "wilting":   "assets/wilt.svg"
-    },
-    "tree": {
-      "growing":   "assets/tree.svg",
-      "flowering": "assets/tree-blossom.svg",
-      "wilting":   "assets/tree-bare.svg"
-    }
-  },
-
-  // The cohesive world.
   "world": {
-    "ground":  "assets/ground.png",
-    "shed":    "assets/shed.svg",
-    "compost": "assets/compost.svg",
-    "fence":   "assets/fence.svg"
+    "grass": "#9cbf6a",
+    "tuft": "#7ba650",
+    "soilRim": "#5f4326",
+    "soilShades": ["#7c5230", "#8a5d38", "#986a41", "#a5764a"],     // nested-bed depth
+    "soilTopShades": ["#875a37", "#946640", "#a1734a", "#ad7f54"],
+    "wood": "#c08a4e",        // signpost plaque
+    "woodDark": "#8a5f31",
+    "woodText": "#3f2a12",
+    "fence": "#caa06a",
+    "fenceDark": "#8a5f31"
   },
 
-  // Optional cosmetic tuning.
-  "ambient": {
-    "sway": true,
-    "particles": "leaves",         // "leaves" | "none" | …
-    "seasonTint": true
+  "plant": {
+    "foliage": {
+      "darkHealthy": [47, 95, 22],  "darkDead": [90, 61, 26],
+      "midHealthy":  [78, 125, 26], "midDead":  [122, 86, 32],
+      "lightHealthy":[140, 193, 82],"lightDead":[176, 147, 82]
+    },
+    "petal": "#e8749f",
+    "petalCenter": "#f2b705",
+    "petalFaded": "#b98a6a",
+    "soil": "#5f4326",        // a plant's own soil mound
+    "soilTop": "#6f5030",
+    "trunk": "#6e4a28",
+    "succDead": [168, 85, 48],
+    "succTan":  [192, 119, 80]
   }
 }
 ```
 
-## Rules the loader enforces
+## Notes & guarantees
 
-- **Fail soft.** A missing or malformed manifest, or a missing asset, falls back
-  to the procedural renderer and surfaces a clear error — it never breaks the
-  view.
-- **Sandboxed to the pack folder.** Asset paths are resolved relative to the
-  pack; no escaping the folder, no remote URLs (local only).
-- **Format-versioned.** `format` lets the plugin support old packs as the schema
-  evolves.
+- **Fail soft.** A malformed pack is logged and skipped; the garden falls back
+  to the default theme. Missing fields fall back per-field.
+- **Colours only.** A pack decides appearance; it never touches vault data or
+  health logic — the garden still never lies.
+- **Live.** Switching themes re-skins the open garden immediately (no reload).
+- Structures (shed, compost, watering can) use fixed art for now; they'll become
+  themeable when the sprite tier lands.
 
-## Design intent
+## Planned: sprite tier
 
-- Packs are **data, not code** — safe to share, no build step.
-- Every mapping is optional; anything omitted falls back to procedural. A pack
-  can re-skin just the shed if that's all it wants to do.
-- Health/logic never lives in a pack. Packs decide *appearance only*; the garden
-  still never lies.
+A future `sprites` section will let a pack supply images for plant species,
+stages, and structures (with a manifest mapping), rendered by a sprite
+implementation of the `Renderer` seam. The palette fields above will remain
+valid, so today's packs keep working.

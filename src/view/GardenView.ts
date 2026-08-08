@@ -132,6 +132,12 @@ export class GardenView extends ItemView {
     this.deps.renderer.destroy();
   }
 
+  /** Re-render with the latest settings (theme, season, …). Public so the
+   *  plugin can apply setting changes to an open view without reopening it. */
+  applySettings(): void {
+    this.refresh();
+  }
+
   private refresh(): void {
     this.deps.model.setConfig(this.deps.getConfig());
     const snapshot = this.deps.adapter.snapshot();

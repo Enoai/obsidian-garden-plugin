@@ -18,6 +18,7 @@
 import { PositionedPlant, Stage } from "../../model/types";
 import { clamp, lerp } from "../../util/math";
 import { hashString } from "../../util/hash";
+import { RGB, Theme } from "../theme";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -30,25 +31,41 @@ export const PLANT_HEIGHT = 104;
 const BASE_X = 52;
 const BASE_Y = 96;
 
-type RGB = readonly [number, number, number];
-
-// Healthy tone → dead tone for each foliage layer.
-const GREEN_DARK: RGB = [0x2f, 0x5f, 0x16];
-const GREEN_MID: RGB = [0x4e, 0x7d, 0x1a];
-const GREEN_LIGHT: RGB = [0x8c, 0xc1, 0x52];
-const BROWN_DARK: RGB = [0x5a, 0x3d, 0x1a];
-const BROWN_MID: RGB = [0x7a, 0x56, 0x20];
-const TAN_LIGHT: RGB = [0xb0, 0x93, 0x52];
-
-const PETAL = "#e8749f";
-const PETAL_CENTER = "#f2b705";
-const PETAL_FADED = "#b98a6a";
-const SOIL = "#5f4326";
-const SOIL_TOP = "#6f5030";
-const TRUNK = "#6e4a28";
+// Palette — reassigned by applyPlantTheme() before each render so a theme takes
+// effect without threading colours through every draw function.
+let GREEN_DARK: RGB = [0x2f, 0x5f, 0x16];
+let GREEN_MID: RGB = [0x4e, 0x7d, 0x1a];
+let GREEN_LIGHT: RGB = [0x8c, 0xc1, 0x52];
+let BROWN_DARK: RGB = [0x5a, 0x3d, 0x1a];
+let BROWN_MID: RGB = [0x7a, 0x56, 0x20];
+let TAN_LIGHT: RGB = [0xb0, 0x93, 0x52];
+let PETAL = "#e8749f";
+let PETAL_CENTER = "#f2b705";
+let PETAL_FADED = "#b98a6a";
+let SOIL = "#5f4326";
+let SOIL_TOP = "#6f5030";
+let TRUNK = "#6e4a28";
 // Succulents redden as they dry out.
-const SUCC_DEAD: RGB = [0xa8, 0x55, 0x30];
-const SUCC_TAN: RGB = [0xc0, 0x77, 0x50];
+let SUCC_DEAD: RGB = [0xa8, 0x55, 0x30];
+let SUCC_TAN: RGB = [0xc0, 0x77, 0x50];
+
+export function applyPlantTheme(theme: Theme): void {
+  const f = theme.plant.foliage;
+  GREEN_DARK = f.darkHealthy;
+  BROWN_DARK = f.darkDead;
+  GREEN_MID = f.midHealthy;
+  BROWN_MID = f.midDead;
+  GREEN_LIGHT = f.lightHealthy;
+  TAN_LIGHT = f.lightDead;
+  PETAL = theme.plant.petal;
+  PETAL_CENTER = theme.plant.petalCenter;
+  PETAL_FADED = theme.plant.petalFaded;
+  SOIL = theme.plant.soil;
+  SOIL_TOP = theme.plant.soilTop;
+  TRUNK = theme.plant.trunk;
+  SUCC_DEAD = theme.plant.succDead;
+  SUCC_TAN = theme.plant.succTan;
+}
 
 function svgEl(
   doc: Document,

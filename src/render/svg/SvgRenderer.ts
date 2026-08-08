@@ -17,8 +17,9 @@ import { clamp } from "../../util/math";
 import { hashString } from "../../util/hash";
 import { parentFolder } from "../../util/paths";
 import { PlantEvent, Renderer } from "../Renderer";
-import { PLANT_HEIGHT, PLANT_WIDTH, drawPlant } from "./plants";
-import { drawBed, drawBedLabel, drawCompost, drawFence, drawGrass, drawShed, drawTuft, drawWateringCan } from "./world";
+import { DEFAULT_THEME, Theme } from "../theme";
+import { PLANT_HEIGHT, PLANT_WIDTH, applyPlantTheme, drawPlant } from "./plants";
+import { applyWorldTheme, drawBed, drawBedLabel, drawCompost, drawFence, drawGrass, drawShed, drawTuft, drawWateringCan } from "./world";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TUFT_STEP = 46;
@@ -73,8 +74,11 @@ export class SvgRenderer implements Renderer {
   private nodes = new Map<NoteId, SVGGElement>();
   private sigs = new Map<NoteId, string>();
   private worldSig = "";
+  private lastThemeName = "";
   private handler: ((e: PlantEvent) => void) | null = null;
   private lastGarden: PositionedGarden | null = null;
+
+  constructor(private getTheme: () => Theme = () => DEFAULT_THEME) {}
 
   // Camera state.
   private scale = 1;
@@ -150,6 +154,16 @@ export class SvgRenderer implements Renderer {
     if (!svg || !layer) return;
     const doc = svg.ownerDocument;
     this.lastGarden = garden;
+
+    // Apply the active theme; if it changed, force world + plants to redraw.
+    const theme = this.getTheme();
+    applyPlantTheme(theme);
+    applyWorldTheme(theme);
+    if (theme.name !== this.lastThemeName) {
+      this.lastThemeName = theme.name;
+      this.worldSig = "";
+      this.sigs.clear();
+    }
 
     const beds = garden.beds ?? [];
     const structures = garden.structures ?? [];

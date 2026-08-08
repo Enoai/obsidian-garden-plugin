@@ -12,6 +12,7 @@ export interface GardenSettings {
   connectivitySaturation: number;
   archiveFolder: string;
   season: SeasonSetting;
+  theme: string;
   debounceMs: number;
   /** Manual arrangement (drag-to-place). Not shown in the settings UI. */
   placement: Placement;
@@ -22,6 +23,7 @@ export const DEFAULT_SETTINGS: GardenSettings = {
   connectivitySaturation: 8,
   archiveFolder: "Archive",
   season: "auto",
+  theme: "Verdant",
   debounceMs: 250,
   placement: emptyPlacement(),
 };
@@ -96,6 +98,23 @@ export class GardenSettingTab extends PluginSettingTab {
           .onChange(async (v) => {
             this.plugin.settings.season = v as SeasonSetting;
             await this.plugin.saveSettings();
+            this.plugin.refreshViews();
+          }),
+      );
+
+    const themeOptions: Record<string, string> = {};
+    for (const t of this.plugin.themes) themeOptions[t.name] = t.name;
+    new Setting(containerEl)
+      .setName("Theme")
+      .setDesc("Colour palette. Drop JSON theme packs in the plugin's themes/ folder.")
+      .addDropdown((d) =>
+        d
+          .addOptions(themeOptions)
+          .setValue(this.plugin.settings.theme)
+          .onChange(async (v) => {
+            this.plugin.settings.theme = v;
+            await this.plugin.saveSettings();
+            this.plugin.refreshViews();
           }),
       );
 
