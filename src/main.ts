@@ -3,7 +3,7 @@
  * the dependency graph for the view and registers the view, ribbon icon,
  * command, and settings tab. See docs/ARCHITECTURE.md for the big picture.
  */
-import { Plugin } from "obsidian";
+import { Plugin, normalizePath } from "obsidian";
 import { DEFAULT_SETTINGS, GardenSettings, GardenSettingTab } from "./settings";
 import { ObsidianVaultAdapter } from "./data/VaultAdapter";
 import { ObsidianVaultMutator } from "./data/VaultMutator";
@@ -88,7 +88,7 @@ export default class GardenPlugin extends Plugin {
    * image assets (palette + sprites).
    */
   private async loadThemePacks(): Promise<Theme[]> {
-    const dir = `${this.manifest.dir ?? ""}/themes`;
+    const dir = normalizePath(`${this.manifest.dir ?? ""}/themes`);
     const adapter = this.app.vault.adapter;
     const out: Theme[] = [];
     try {
@@ -105,7 +105,7 @@ export default class GardenPlugin extends Plugin {
       }
 
       for (const folder of listing.folders) {
-        const manifestPath = `${folder}/manifest.json`;
+        const manifestPath = normalizePath(`${folder}/manifest.json`);
         if (!(await adapter.exists(manifestPath))) continue;
         try {
           const json = JSON.parse(await adapter.read(manifestPath));
@@ -126,7 +126,7 @@ export default class GardenPlugin extends Plugin {
   private resolveSprites(raw: unknown, folder: string): ThemeSprites | undefined {
     if (!raw || typeof raw !== "object") return undefined;
     const adapter = this.app.vault.adapter;
-    const url = (p: string) => adapter.getResourcePath(`${folder}/${p}`);
+    const url = (p: string) => adapter.getResourcePath(normalizePath(`${folder}/${p}`));
     const map = (obj: unknown): Record<string, string> | undefined => {
       if (!obj || typeof obj !== "object") return undefined;
       const res: Record<string, string> = {};

@@ -55,7 +55,7 @@ telemetry.
 
 1. Download `main.js`, `manifest.json`, and `styles.css` from the
    [latest release](https://github.com/Enoai/obsidian-garden-plugin/releases).
-2. Copy them into `<your-vault>/.obsidian/plugins/obsidian-garden/`.
+2. Copy them into `<your-vault>/.obsidian/plugins/vault-garden/`.
 3. Enable **Garden** in *Settings → Community plugins*.
 
 Open the garden from the ribbon (the sprout icon) or the command palette
@@ -104,7 +104,7 @@ npm run build    # type-check + production bundle
 Symlink the repo into a test vault to try it live:
 
 ```bash
-ln -s "$(pwd)" /path/to/YourVault/.obsidian/plugins/obsidian-garden
+ln -s "$(pwd)" /path/to/YourVault/.obsidian/plugins/vault-garden
 ```
 
 The codebase is built to be forked — pure domain logic, a single Obsidian

@@ -130,17 +130,28 @@ export class SvgRenderer implements Renderer {
     // A watering can that follows the cursor while the tool is active.
     const cursor = doc.createElement("div");
     cursor.className = "garden-can-cursor";
-    cursor.innerHTML =
-      "<svg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>" +
-      "<rect x='9' y='14' width='15' height='12' rx='3' fill='#4a9d8e' stroke='#37796d'/>" +
-      "<path d='M12 14 Q16 6 21 14' fill='none' stroke='#37796d' stroke-width='2'/>" +
-      "<path d='M9 18 L2 13' stroke='#37796d' stroke-width='2' stroke-linecap='round'/>" +
-      "<ellipse cx='2' cy='13' rx='2.4' ry='1.6' fill='#37796d'/></svg>" +
-      "<span class='garden-can-label' hidden></span>";
+    const canSvg = doc.createElementNS(SVG_NS, "svg");
+    canSvg.setAttribute("width", "32");
+    canSvg.setAttribute("height", "32");
+    canSvg.setAttribute("viewBox", "0 0 32 32");
+    const addPart = (name: string, attrs: Record<string, string>) => {
+      const node = doc.createElementNS(SVG_NS, name);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      canSvg.appendChild(node);
+    };
+    addPart("rect", { x: "9", y: "14", width: "15", height: "12", rx: "3", fill: "#4a9d8e", stroke: "#37796d" });
+    addPart("path", { d: "M12 14 Q16 6 21 14", fill: "none", stroke: "#37796d", "stroke-width": "2" });
+    addPart("path", { d: "M9 18 L2 13", stroke: "#37796d", "stroke-width": "2", "stroke-linecap": "round" });
+    addPart("ellipse", { cx: "2", cy: "13", rx: "2.4", ry: "1.6", fill: "#37796d" });
+    cursor.appendChild(canSvg);
+    const label = doc.createElement("span");
+    label.className = "garden-can-label";
+    label.hidden = true;
+    cursor.appendChild(label);
     cursor.hidden = true;
     host.appendChild(cursor);
     this.canCursor = cursor;
-    this.canLabel = cursor.querySelector(".garden-can-label");
+    this.canLabel = label;
 
     this.escHandler = (e: KeyboardEvent) => {
       if (e.key === "Escape" && this.wateringMode) this.exitWatering();
