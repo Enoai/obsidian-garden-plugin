@@ -96,6 +96,7 @@ export class SvgRenderer implements Renderer {
   private wateringMode = false;
   private pendingWater: { id: NoteId; startX: number; startY: number; moved: boolean } | null = null;
   private canCursor: HTMLDivElement | null = null;
+  private canLabel: HTMLElement | null = null;
   private escHandler: ((e: KeyboardEvent) => void) | null = null;
   private lastClientX = 0;
   private lastClientY = 0;
@@ -127,10 +128,12 @@ export class SvgRenderer implements Renderer {
       "<rect x='9' y='14' width='15' height='12' rx='3' fill='#4a9d8e' stroke='#37796d'/>" +
       "<path d='M12 14 Q16 6 21 14' fill='none' stroke='#37796d' stroke-width='2'/>" +
       "<path d='M9 18 L2 13' stroke='#37796d' stroke-width='2' stroke-linecap='round'/>" +
-      "<ellipse cx='2' cy='13' rx='2.4' ry='1.6' fill='#37796d'/></svg>";
+      "<ellipse cx='2' cy='13' rx='2.4' ry='1.6' fill='#37796d'/></svg>" +
+      "<span class='garden-can-label' hidden></span>";
     cursor.hidden = true;
     host.appendChild(cursor);
     this.canCursor = cursor;
+    this.canLabel = cursor.querySelector(".garden-can-label");
 
     this.escHandler = (e: KeyboardEvent) => {
       if (e.key === "Escape" && this.wateringMode) this.exitWatering();
@@ -557,13 +560,25 @@ export class SvgRenderer implements Renderer {
     }
   }
 
-  /** Outline the plant under the spout tip so it's clear what will be watered. */
+  /** Outline the plant under the spout tip and name it on the cursor label, so
+   *  it's clear exactly what will be watered. */
   private highlightWaterTarget(target: EventTarget | null): void {
     const el = target instanceof Element ? target.closest(".garden-plant") : null;
     const id = el?.getAttribute("data-id");
     const plant = id ? this.lastGarden?.plants.get(id) : undefined;
-    if (plant) this.showHighlight(plant.position.x, plant.position.y, PLANT_WIDTH, PLANT_HEIGHT);
-    else this.clearHighlight();
+    if (plant) {
+      this.showHighlight(plant.position.x, plant.position.y, PLANT_WIDTH, PLANT_HEIGHT);
+      if (this.canLabel) {
+        this.canLabel.textContent = plant.title;
+        this.canLabel.hidden = false;
+      }
+    } else {
+      this.clearHighlight();
+      if (this.canLabel) {
+        this.canLabel.textContent = "";
+        this.canLabel.hidden = true;
+      }
+    }
   }
 
   /** The deepest (innermost) bed under the point, so drops target the most
@@ -644,6 +659,7 @@ export class SvgRenderer implements Renderer {
     this.highlight = null;
     this.controls = null;
     this.canCursor = null;
+    this.canLabel = null;
     this.lastGarden = null;
     this.wateringMode = false;
     this.pendingWater = null;
