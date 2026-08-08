@@ -1,28 +1,30 @@
 /**
- * Phase 1 renderer: procedural SVG with a pan/zoom camera.
+ * Phase 1/2 renderer: procedural SVG with a pan/zoom camera and draggable
+ * plants.
  *
- * Layers: a world layer (grass, beds, tufts, signposts, border) behind a plants
- * layer, both inside a camera group that we translate/scale. The SVG fills the
- * pane at 1 unit = 1px (no viewBox); the camera moves the world instead. This is
- * what keeps the garden from shrinking as the vault grows — adding notes no
- * longer refits everything; the user pans/zooms to navigate.
+ * Layers (inside a camera group we translate/scale): world (grass, beds, tufts,
+ * signposts, fence) → plants → overlay (drop highlight). The SVG fills the pane
+ * at 1 unit = 1px (no viewBox); the camera moves the world, so the garden never
+ * shrinks as the vault grows.
  *
- * Plants are patched (redrawn only when their appearance signature changes) and
- * re-stacked back-to-front each render. The world layer is only rebuilt when the
- * bounds or beds change.
+ * Pointer model: pressing on a plant starts a plant drag; pressing on empty
+ * ground pans the camera. A plant drag that doesn't move is a click (select). A
+ * drag that ends over a different bed emits a `dropped` event; the view confirms
+ * and performs the folder move.
  */
 import { Bed, NoteId, PositionedGarden, PositionedPlant } from "../../model/types";
 import { clamp } from "../../util/math";
 import { hashString } from "../../util/hash";
+import { parentFolder } from "../../util/paths";
 import { PlantEvent, Renderer } from "../Renderer";
 import { PLANT_HEIGHT, PLANT_WIDTH, drawPlant } from "./plants";
-import { drawBed, drawBedLabel, drawBorder, drawGrass, drawTuft } from "./world";
+import { drawBed, drawBedLabel, drawFence, drawGrass, drawTuft } from "./world";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TUFT_STEP = 46;
 const MIN_SCALE = 0.15;
 const MAX_SCALE = 4;
-const DRAG_THRESHOLD = 3;
+const DRAG_THRESHOLD = 4;
 
 function signature(p: PositionedPlant): string {
   const f = Math.round(p.health.freshness * 20);
@@ -37,16 +39,30 @@ function pointInBed(x: number, y: number, beds: Bed[]): boolean {
   return false;
 }
 
+interface PlantDrag {
+  id: NoteId;
+  node: SVGGElement;
+  srcKey: string;
+  offX: number;
+  offY: number;
+  startX: number;
+  startY: number;
+  moved: boolean;
+}
+
 export class SvgRenderer implements Renderer {
   private svg: SVGSVGElement | null = null;
   private camera: SVGGElement | null = null;
   private worldLayer: SVGGElement | null = null;
   private plantsLayer: SVGGElement | null = null;
+  private overlayLayer: SVGGElement | null = null;
+  private highlight: SVGRectElement | null = null;
   private controls: HTMLElement | null = null;
   private nodes = new Map<NoteId, SVGGElement>();
   private sigs = new Map<NoteId, string>();
   private worldSig = "";
   private handler: ((e: PlantEvent) => void) | null = null;
+  private lastGarden: PositionedGarden | null = null;
 
   // Camera state.
   private scale = 1;
@@ -56,11 +72,10 @@ export class SvgRenderer implements Renderer {
   private contentW = 0;
   private contentH = 0;
 
-  // Drag state.
-  private dragging = false;
-  private dragged = false;
-  private suppressClick = false;
-  private dragStart = { x: 0, y: 0, tx: 0, ty: 0 };
+  // Interaction state.
+  private panning = false;
+  private panStart = { x: 0, y: 0, tx: 0, ty: 0 };
+  private plantDrag: PlantDrag | null = null;
 
   mount(host: HTMLElement): void {
     const doc = host.ownerDocument;
@@ -70,8 +85,8 @@ export class SvgRenderer implements Renderer {
     const camera = doc.createElementNS(SVG_NS, "g");
     const world = doc.createElementNS(SVG_NS, "g");
     const plants = doc.createElementNS(SVG_NS, "g");
-    camera.appendChild(world);
-    camera.appendChild(plants);
+    const overlay = doc.createElementNS(SVG_NS, "g");
+    camera.append(world, plants, overlay);
     svg.appendChild(camera);
     host.appendChild(svg);
 
@@ -79,8 +94,9 @@ export class SvgRenderer implements Renderer {
     this.camera = camera;
     this.worldLayer = world;
     this.plantsLayer = plants;
+    this.overlayLayer = overlay;
 
-    this.attachCameraControls(host, doc);
+    this.attachControls(host, doc);
     this.applyTransform();
   }
 
@@ -89,20 +105,34 @@ export class SvgRenderer implements Renderer {
     const layer = this.plantsLayer;
     if (!svg || !layer) return;
     const doc = svg.ownerDocument;
+    this.lastGarden = garden;
 
+    const beds = garden.beds ?? [];
+    let minX = Infinity;
+    let minY = Infinity;
     let maxX = 0;
     let maxY = 0;
-    for (const plant of garden.plants.values()) {
-      maxX = Math.max(maxX, plant.position.x + PLANT_WIDTH);
-      maxY = Math.max(maxY, plant.position.y + PLANT_HEIGHT);
+    for (const b of beds) {
+      minX = Math.min(minX, b.x);
+      minY = Math.min(minY, b.y);
+      maxX = Math.max(maxX, b.x + b.width);
+      maxY = Math.max(maxY, b.y + b.height);
     }
-    this.contentW = maxX + 24;
-    this.contentH = maxY + 24;
-    const beds = garden.beds ?? [];
+    for (const p of garden.plants.values()) {
+      maxX = Math.max(maxX, p.position.x + PLANT_WIDTH);
+      maxY = Math.max(maxY, p.position.y + PLANT_HEIGHT);
+    }
+    if (!Number.isFinite(minX)) {
+      minX = 24;
+      minY = 24;
+    }
+    // Mirror the left/top margin on the right/bottom so the fence sits outside
+    // every bed on all sides.
+    this.contentW = maxX + minX;
+    this.contentH = maxY + minY;
 
     this.renderWorld(doc, this.contentW, this.contentH, beds);
 
-    // Add / update plants.
     const seen = new Set<NoteId>();
     for (const [id, plant] of garden.plants) {
       seen.add(id);
@@ -110,14 +140,8 @@ export class SvgRenderer implements Renderer {
       if (!node) {
         node = doc.createElementNS(SVG_NS, "g");
         node.classList.add("garden-plant");
+        node.setAttribute("data-id", id);
         const el = node;
-        el.addEventListener("click", () => {
-          if (this.suppressClick) {
-            this.suppressClick = false;
-            return;
-          }
-          this.handler?.({ type: "select", id });
-        });
         el.addEventListener("mouseenter", () =>
           this.handler?.({ type: "hover", id, rect: el.getBoundingClientRect() }),
         );
@@ -134,7 +158,6 @@ export class SvgRenderer implements Renderer {
       }
     }
 
-    // Remove plants whose notes are gone.
     for (const [id, node] of this.nodes) {
       if (!seen.has(id)) {
         node.remove();
@@ -149,7 +172,6 @@ export class SvgRenderer implements Renderer {
       if (node) layer.appendChild(node);
     }
 
-    // Fit the whole garden into the pane once, on first load.
     if (!this.fitted) {
       this.fitted = true;
       this.scheduleFit();
@@ -178,7 +200,7 @@ export class SvgRenderer implements Renderer {
     }
 
     for (const bed of beds) layer.appendChild(drawBedLabel(doc, bed));
-    layer.appendChild(drawBorder(doc, width, height));
+    layer.appendChild(drawFence(doc, width, height));
   }
 
   // --- Camera ---------------------------------------------------------------
@@ -187,7 +209,13 @@ export class SvgRenderer implements Renderer {
     this.camera?.setAttribute("transform", `translate(${this.tx}, ${this.ty}) scale(${this.scale})`);
   }
 
-  /** Zoom keeping the given pane point fixed under the cursor. */
+  private clientToWorld(cx: number, cy: number): { wx: number; wy: number } {
+    const rect = this.svg?.getBoundingClientRect();
+    const px = cx - (rect?.left ?? 0);
+    const py = cy - (rect?.top ?? 0);
+    return { wx: (px - this.tx) / this.scale, wy: (py - this.ty) / this.scale };
+  }
+
   private zoomAround(px: number, py: number, factor: number): void {
     const next = clamp(this.scale * factor, MIN_SCALE, MAX_SCALE);
     const wx = (px - this.tx) / this.scale;
@@ -202,13 +230,11 @@ export class SvgRenderer implements Renderer {
     requestAnimationFrame(() => this.fit());
   }
 
-  /** Fit the whole garden into the pane, centred. */
   fit(): void {
     const svg = this.svg;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0 || this.contentW === 0) {
-      // Pane not laid out yet — try again next frame.
       requestAnimationFrame(() => this.fit());
       return;
     }
@@ -219,7 +245,9 @@ export class SvgRenderer implements Renderer {
     this.applyTransform();
   }
 
-  private attachCameraControls(host: HTMLElement, doc: Document): void {
+  // --- Pointer interaction --------------------------------------------------
+
+  private attachControls(host: HTMLElement, doc: Document): void {
     const svg = this.svg;
     if (!svg) return;
 
@@ -228,38 +256,20 @@ export class SvgRenderer implements Renderer {
       (e: WheelEvent) => {
         e.preventDefault();
         const rect = svg.getBoundingClientRect();
-        const factor = Math.exp(-e.deltaY * 0.0015);
-        this.zoomAround(e.clientX - rect.left, e.clientY - rect.top, factor);
+        this.zoomAround(e.clientX - rect.left, e.clientY - rect.top, Math.exp(-e.deltaY * 0.0015));
       },
       { passive: false },
     );
 
     svg.addEventListener("pointerdown", (e: PointerEvent) => {
-      this.dragging = true;
-      this.dragged = false;
-      this.dragStart = { x: e.clientX, y: e.clientY, tx: this.tx, ty: this.ty };
-      svg.setPointerCapture(e.pointerId);
-      svg.classList.add("grabbing");
+      const plantEl = e.target instanceof Element ? e.target.closest(".garden-plant") : null;
+      if (plantEl instanceof SVGGElement) this.beginPlantDrag(plantEl, e);
+      else this.beginPan(e);
     });
-    svg.addEventListener("pointermove", (e: PointerEvent) => {
-      if (!this.dragging) return;
-      const dx = e.clientX - this.dragStart.x;
-      const dy = e.clientY - this.dragStart.y;
-      if (Math.abs(dx) + Math.abs(dy) > DRAG_THRESHOLD) this.dragged = true;
-      this.tx = this.dragStart.tx + dx;
-      this.ty = this.dragStart.ty + dy;
-      this.applyTransform();
-    });
-    const endDrag = (e: PointerEvent) => {
-      if (!this.dragging) return;
-      this.dragging = false;
-      svg.releasePointerCapture(e.pointerId);
-      svg.classList.remove("grabbing");
-      // Swallow the click that follows a real drag so it doesn't open a note.
-      if (this.dragged) this.suppressClick = true;
-    };
-    svg.addEventListener("pointerup", endDrag);
-    svg.addEventListener("pointercancel", endDrag);
+    svg.addEventListener("pointermove", (e: PointerEvent) => this.onPointerMove(e));
+    const end = (e: PointerEvent) => this.onPointerUp(e);
+    svg.addEventListener("pointerup", end);
+    svg.addEventListener("pointercancel", end);
 
     const controls = doc.createElement("div");
     controls.className = "garden-controls";
@@ -281,6 +291,134 @@ export class SvgRenderer implements Renderer {
     this.controls = controls;
   }
 
+  private beginPan(e: PointerEvent): void {
+    this.panning = true;
+    this.panStart = { x: e.clientX, y: e.clientY, tx: this.tx, ty: this.ty };
+    this.svg?.setPointerCapture(e.pointerId);
+    this.svg?.classList.add("grabbing");
+  }
+
+  private beginPlantDrag(node: SVGGElement, e: PointerEvent): void {
+    const id = node.getAttribute("data-id");
+    const plant = id ? this.lastGarden?.plants.get(id) : undefined;
+    if (!id || !plant) return;
+    const { wx, wy } = this.clientToWorld(e.clientX, e.clientY);
+    this.plantDrag = {
+      id,
+      node,
+      srcKey: parentFolder(id),
+      offX: wx - plant.position.x,
+      offY: wy - plant.position.y,
+      startX: e.clientX,
+      startY: e.clientY,
+      moved: false,
+    };
+    this.svg?.setPointerCapture(e.pointerId);
+    node.classList.add("garden-plant--dragging");
+    this.plantsLayer?.appendChild(node); // raise above siblings
+  }
+
+  private onPointerMove(e: PointerEvent): void {
+    const drag = this.plantDrag;
+    if (drag) {
+      if (Math.abs(e.clientX - drag.startX) + Math.abs(e.clientY - drag.startY) > DRAG_THRESHOLD) {
+        drag.moved = true;
+      }
+      const { wx, wy } = this.clientToWorld(e.clientX, e.clientY);
+      drag.node.setAttribute("transform", `translate(${wx - drag.offX}, ${wy - drag.offY})`);
+      if (drag.moved) this.updateHighlight(wx, wy, drag.srcKey);
+      return;
+    }
+    if (this.panning) {
+      this.tx = this.panStart.tx + (e.clientX - this.panStart.x);
+      this.ty = this.panStart.ty + (e.clientY - this.panStart.y);
+      this.applyTransform();
+    }
+  }
+
+  private onPointerUp(e: PointerEvent): void {
+    const drag = this.plantDrag;
+    if (drag) {
+      this.plantDrag = null;
+      this.svg?.releasePointerCapture(e.pointerId);
+      drag.node.classList.remove("garden-plant--dragging");
+      this.clearHighlight();
+
+      if (!drag.moved) {
+        this.rerender(); // restore z-order
+        this.handler?.({ type: "select", id: drag.id });
+        return;
+      }
+      const { wx, wy } = this.clientToWorld(e.clientX, e.clientY);
+      const target = this.bedAt(wx, wy);
+      if (target && target.key !== drag.srcKey) {
+        this.handler?.({
+          type: "dropped",
+          id: drag.id,
+          toKey: target.key,
+          clientX: e.clientX,
+          clientY: e.clientY,
+        });
+        // Leave the plant where it was dropped until the view confirms/cancels.
+      } else {
+        this.rerender(); // snap back
+      }
+      return;
+    }
+    if (this.panning) {
+      this.panning = false;
+      this.svg?.releasePointerCapture(e.pointerId);
+      this.svg?.classList.remove("grabbing");
+    }
+  }
+
+  /** The deepest (innermost) bed under the point, so drops target the most
+   *  specific subfolder. */
+  private bedAt(wx: number, wy: number): Bed | null {
+    let best: Bed | null = null;
+    for (const b of this.lastGarden?.beds ?? []) {
+      if (wx >= b.x && wx <= b.x + b.width && wy >= b.y && wy <= b.y + b.height) {
+        if (!best || b.depth > best.depth) best = b;
+      }
+    }
+    return best;
+  }
+
+  private updateHighlight(wx: number, wy: number, srcKey: string): void {
+    const overlay = this.overlayLayer;
+    if (!overlay) return;
+    const bed = this.bedAt(wx, wy);
+    if (!bed || bed.key === srcKey) {
+      this.clearHighlight();
+      return;
+    }
+    if (!this.highlight) {
+      const rect = overlay.ownerDocument.createElementNS(SVG_NS, "rect");
+      rect.setAttribute("rx", "18");
+      rect.setAttribute("fill", "rgba(255,255,255,0.18)");
+      rect.setAttribute("stroke", "#ffffff");
+      rect.setAttribute("stroke-width", "2");
+      rect.setAttribute("stroke-dasharray", "6 5");
+      rect.setAttribute("pointer-events", "none");
+      this.highlight = rect;
+      overlay.appendChild(rect);
+    }
+    this.highlight.setAttribute("x", String(bed.x));
+    this.highlight.setAttribute("y", String(bed.y));
+    this.highlight.setAttribute("width", String(bed.width));
+    this.highlight.setAttribute("height", String(bed.height));
+    this.highlight.style.display = "";
+  }
+
+  private clearHighlight(): void {
+    if (this.highlight) this.highlight.style.display = "none";
+  }
+
+  /** Re-render the last garden (used to snap a plant back / restore z-order). */
+  private rerender(): void {
+    if (this.lastGarden) this.render(this.lastGarden);
+  }
+
   on(handler: (e: PlantEvent) => void): void {
     this.handler = handler;
   }
@@ -292,7 +430,10 @@ export class SvgRenderer implements Renderer {
     this.camera = null;
     this.worldLayer = null;
     this.plantsLayer = null;
+    this.overlayLayer = null;
+    this.highlight = null;
     this.controls = null;
+    this.lastGarden = null;
     this.nodes.clear();
     this.sigs.clear();
     this.worldSig = "";

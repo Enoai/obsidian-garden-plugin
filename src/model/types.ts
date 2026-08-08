@@ -56,12 +56,15 @@ export interface PositionedPlant extends PlantState {
 }
 
 /**
- * A garden bed — a soil region a cluster of plants sits on. Keyed by the group
- * it represents (a folder). In Phase 2 this becomes the drop target that maps a
- * drag to a folder move.
+ * A garden bed — a soil region a folder's plants sit on. Beds nest: a subfolder
+ * bed sits inside its parent (higher `depth`). `key` is the full folder path
+ * (the drop target for a folder move); `label` is the leaf name shown on the
+ * bed; `depth` drives nested soil shading and drop hit-testing.
  */
 export interface Bed {
   key: string;
+  label: string;
+  depth: number;
   x: number;
   y: number;
   width: number;

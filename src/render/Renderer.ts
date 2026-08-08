@@ -16,7 +16,10 @@ export type PlantEvent =
   /** `rect` is the plant's on-screen bounding box (client coords), so the view
    *  can anchor a tooltip to it. */
   | { type: "hover"; id: NoteId; rect: DOMRect }
-  | { type: "unhover" };
+  | { type: "unhover" }
+  /** A plant was dragged and dropped onto a different bed. `toKey` is the target
+   *  folder path; client coords are for anchoring the confirm popup. */
+  | { type: "dropped"; id: NoteId; toKey: string; clientX: number; clientY: number };
 
 export interface Renderer {
   mount(host: HTMLElement): void;

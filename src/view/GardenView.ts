@@ -6,16 +6,19 @@
  */
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { VaultAdapter } from "../data/VaultAdapter";
+import { VaultMutator } from "../data/VaultMutator";
 import { GardenModel } from "../model/GardenModel";
 import { Layout } from "../layout/Layout";
 import { Renderer } from "../render/Renderer";
 import { NoteId, PlantState, ScoringConfig, Stage } from "../model/types";
+import { clamp } from "../util/math";
 import { debounce } from "../util/debounce";
 
 export const GARDEN_VIEW_TYPE = "garden-view";
 
 export interface GardenViewDeps {
   adapter: VaultAdapter;
+  mutator: VaultMutator;
   model: GardenModel;
   layout: Layout;
   renderer: Renderer;
@@ -46,6 +49,7 @@ function relativeTime(modifiedMs: number, nowMs: number): string {
 export class GardenView extends ItemView {
   private unsubscribe: (() => void) | null = null;
   private tooltipEl: HTMLDivElement | null = null;
+  private confirmEl: HTMLDivElement | null = null;
   private hideTimer: number | null = null;
   private plantsById: Map<NoteId, PlantState> = new Map();
 
@@ -78,6 +82,7 @@ export class GardenView extends ItemView {
       if (e.type === "select") this.openNote(e.id);
       else if (e.type === "hover") this.showTooltip(e.id, e.rect);
       else if (e.type === "unhover") this.scheduleHideTooltip();
+      else if (e.type === "dropped") this.showConfirm(e.id, e.toKey, e.clientX, e.clientY);
     });
 
     // Tooltip lives above the canvas; keeping the pointer on it cancels the hide
@@ -87,6 +92,11 @@ export class GardenView extends ItemView {
     tip.addEventListener("mouseenter", () => this.cancelHide());
     tip.addEventListener("mouseleave", () => this.scheduleHideTooltip());
     this.tooltipEl = tip;
+
+    // Confirm popup for a drag-to-move.
+    const confirm = host.createDiv({ cls: "garden-confirm" });
+    confirm.hidden = true;
+    this.confirmEl = confirm;
 
     this.unsubscribe = this.deps.adapter.onChange(
       debounce(() => this.refresh(), this.deps.debounceMs),
@@ -99,6 +109,7 @@ export class GardenView extends ItemView {
     this.unsubscribe = null;
     this.cancelHide();
     this.tooltipEl = null;
+    this.confirmEl = null;
     this.deps.renderer.destroy();
   }
 
@@ -159,6 +170,39 @@ export class GardenView extends ItemView {
       window.clearTimeout(this.hideTimer);
       this.hideTimer = null;
     }
+  }
+
+  private showConfirm(id: NoteId, toKey: string, clientX: number, clientY: number): void {
+    const c = this.confirmEl;
+    if (!c) return;
+    this.cancelHide();
+    if (this.tooltipEl) this.tooltipEl.hidden = true;
+
+    const plant = this.plantsById.get(id);
+    const folder = toKey === "(root)" ? "root" : toKey;
+    c.empty();
+    c.createDiv({ cls: "garden-confirm-msg", text: `Move “${plant?.title ?? id}” to ${folder}?` });
+    const row = c.createDiv({ cls: "garden-confirm-row" });
+    const moveBtn = row.createEl("button", { cls: "mod-cta", text: "Move" });
+    const cancelBtn = row.createEl("button", { text: "Cancel" });
+    moveBtn.addEventListener("click", () => {
+      c.hidden = true;
+      void this.performMove(id, toKey);
+    });
+    cancelBtn.addEventListener("click", () => {
+      c.hidden = true;
+      this.refresh(); // snap the plant back to its bed
+    });
+
+    const hostRect = this.contentEl.getBoundingClientRect();
+    c.style.left = `${clamp(clientX - hostRect.left, 8, hostRect.width - 8)}px`;
+    c.style.top = `${clamp(clientY - hostRect.top, 8, hostRect.height - 8)}px`;
+    c.hidden = false;
+  }
+
+  private async performMove(id: NoteId, toKey: string): Promise<void> {
+    await this.deps.mutator.move(id, toKey);
+    this.refresh();
   }
 
   private openNote(id: string): void {

@@ -1,66 +1,116 @@
 /**
- * Organic clustered layout: notes clump by top-level folder into garden beds,
- * packed tightly with a little deterministic jitter so each clump reads as a
- * planted patch rather than a spreadsheet. Beds flow left-to-right and wrap.
+ * Recursive nested-bed layout. The vault's folder tree becomes a tree of beds:
+ * a folder is a bed, and its subfolders are smaller beds packed *inside* it
+ * (each with its own header label and a lighter soil shade). A folder's own
+ * notes are plants packed alongside its subfolder beds. Top-level folders (and
+ * a "root" bed for vault-root notes) are packed across the garden into a roughly
+ * square block, with an outer margin so the fence sits outside every bed.
  *
- * Plants are emitted in ascending-y order so overlapping canopies layer
- * back-to-front. Footprint is passed in (from the renderer) to keep this file
- * decoupled from how plants are drawn.
+ * Plants are emitted back-to-front (ascending y) so overlapping canopies layer
+ * correctly. Footprint size is passed in from the renderer to stay decoupled
+ * from how plants are drawn.
  */
 import { Bed, GardenState, NoteId, PositionedGarden, PositionedPlant } from "../model/types";
 import { hashString } from "../util/hash";
+import { clamp } from "../util/math";
 import { Layout } from "./Layout";
 
 export interface GardenLayoutOptions {
   plantWidth: number;
   plantHeight: number;
-  /** Distance between plant cell origins within a clump. */
-  spacing: number;
-  /** Max organic offset applied to each plant. */
+  /** Inner padding around a bed's contents. */
+  padding: number;
+  /** Top strip inside a bed reserved for its header label. */
+  header: number;
+  /** Gap between items within a bed. */
+  gap: number;
+  /** Small organic offset applied to each plant within its cell. */
   jitter: number;
-  /** Soil margin around a clump's plants. */
-  bedPadding: number;
-  /** Gap between beds. */
-  clusterGap: number;
-  /** Rough width before beds wrap to a new row. If omitted, it's derived from
-   *  the total content so the garden forms a roughly square block rather than a
-   *  long line. */
-  targetWidth?: number;
+  /** Target aspect ratio when packing (slightly landscape). */
+  aspect: number;
+  /** Outer margin around the whole garden (room for the fence). */
+  margin: number;
 }
 
-const DEFAULTS: Required<Omit<GardenLayoutOptions, "targetWidth">> = {
+const DEFAULTS: GardenLayoutOptions = {
   plantWidth: 104,
   plantHeight: 104,
-  spacing: 74,
-  jitter: 9,
-  bedPadding: 24,
-  clusterGap: 44,
+  padding: 18,
+  header: 22,
+  gap: 14,
+  jitter: 6,
+  aspect: 1.35,
+  margin: 40,
 };
 
-/** Aspect ratio to aim for when auto-wrapping (slightly landscape). */
-const TARGET_ASPECT = 1.4;
-
-interface SizedBed {
+interface FolderNode {
   key: string;
-  ids: NoteId[];
-  cols: number;
-  width: number;
-  height: number;
+  name: string;
+  notes: NoteId[];
+  children: Map<string, FolderNode>;
 }
 
-/** Top-level folder of a note path; the key we clump on. */
-function topFolder(id: NoteId): string {
-  const i = id.indexOf("/");
-  return i < 0 ? "(root)" : id.slice(0, i);
+type Item =
+  | { kind: "plant"; id: NoteId; w: number; h: number; lx: number; ly: number }
+  | { kind: "folder"; node: FolderNode; w: number; h: number; lx: number; ly: number };
+
+interface Measured {
+  w: number;
+  h: number;
+  items: Item[];
 }
 
-/** Deterministic offset in [-amount, amount] from an id + salt. */
 function jitter(id: string, salt: string, amount: number): number {
   return ((hashString(id + salt) % 1000) / 1000 - 0.5) * 2 * amount;
 }
 
+/** Shelf-pack sized boxes left-to-right, wrapping at targetW. */
+function pack(
+  sizes: { w: number; h: number }[],
+  targetW: number,
+  gap: number,
+): { pos: { x: number; y: number }[]; innerW: number; innerH: number } {
+  let x = 0;
+  let y = 0;
+  let rowH = 0;
+  let innerW = 0;
+  const pos: { x: number; y: number }[] = [];
+  for (const s of sizes) {
+    if (x > 0 && x + s.w > targetW) {
+      x = 0;
+      y += rowH + gap;
+      rowH = 0;
+    }
+    pos.push({ x, y });
+    x += s.w + gap;
+    rowH = Math.max(rowH, s.h);
+    innerW = Math.max(innerW, x - gap);
+  }
+  return { pos, innerW, innerH: y + rowH };
+}
+
+function buildTree(ids: NoteId[]): FolderNode {
+  const root: FolderNode = { key: "(root)", name: "root", notes: [], children: new Map() };
+  for (const id of ids) {
+    const segs = id.split("/");
+    let node = root;
+    let path = "";
+    for (const folder of segs.slice(0, -1)) {
+      path = path ? `${path}/${folder}` : folder;
+      let child = node.children.get(folder);
+      if (!child) {
+        child = { key: path, name: folder, notes: [], children: new Map() };
+        node.children.set(folder, child);
+      }
+      node = child;
+    }
+    node.notes.push(id);
+  }
+  return root;
+}
+
 export class GardenLayout implements Layout {
-  private opts: Required<Omit<GardenLayoutOptions, "targetWidth">> & { targetWidth?: number };
+  private opts: GardenLayoutOptions;
 
   constructor(opts: Partial<GardenLayoutOptions> = {}) {
     this.opts = { ...DEFAULTS, ...opts };
@@ -68,78 +118,107 @@ export class GardenLayout implements Layout {
 
   place(garden: GardenState): PositionedGarden {
     const o = this.opts;
+    const memo = new Map<FolderNode, Measured>();
+    const root = buildTree([...garden.plants.keys()].sort());
 
-    // Group by folder, stable order within each group.
-    const groups = new Map<string, NoteId[]>();
-    for (const id of [...garden.plants.keys()].sort()) {
-      const key = topFolder(id);
-      const arr = groups.get(key) ?? [];
-      arr.push(id);
-      groups.set(key, arr);
+    // Top-level items: each top-level folder subtree, plus a "root" bed for
+    // vault-root notes.
+    const topItems = [...root.children.values()].sort((a, b) => a.name.localeCompare(b.name));
+    if (root.notes.length) {
+      topItems.push({ key: "(root)", name: "root", notes: [...root.notes], children: new Map() });
     }
 
-    // Pass 1: size each bed.
-    const sized: SizedBed[] = [...groups.entries()].sort().map(([key, ids]) => {
-      const cols = Math.max(1, Math.ceil(Math.sqrt(ids.length)));
-      const rows = Math.ceil(ids.length / cols);
-      return {
-        key,
-        ids,
-        cols,
-        width: (cols - 1) * o.spacing + o.plantWidth + o.bedPadding * 2,
-        height: (rows - 1) * o.spacing + o.plantHeight + o.bedPadding * 2,
-      };
+    const sizes = topItems.map((n) => {
+      const m = this.measure(n, memo);
+      return { w: m.w, h: m.h };
+    });
+    const totalArea = sizes.reduce((s, z) => s + z.w * z.h, 0);
+    const widest = sizes.reduce((m, z) => Math.max(m, z.w), 0);
+    const targetW = Math.max(widest, Math.sqrt(Math.max(1, totalArea) * o.aspect));
+    const topGap = o.gap * 2;
+    const { pos } = pack(sizes, targetW, topGap);
+
+    const beds: Bed[] = [];
+    const plants = new Map<NoteId, PositionedPlant>();
+    topItems.forEach((node, i) => {
+      this.placeNode(node, o.margin + pos[i].x, o.margin + pos[i].y, 0, beds, plants, memo, garden);
     });
 
-    const targetWidth = o.targetWidth ?? this.autoTargetWidth(sized);
-
-    // Pass 2: pack beds left-to-right, wrapping at targetWidth.
-    const placed = new Map<NoteId, PositionedPlant>();
-    const beds: Bed[] = [];
-    let cursorX = o.clusterGap;
-    let cursorY = o.clusterGap;
-    let rowHeight = 0;
-
-    for (const b of sized) {
-      if (cursorX > o.clusterGap && cursorX + b.width > targetWidth) {
-        cursorX = o.clusterGap;
-        cursorY += rowHeight + o.clusterGap;
-        rowHeight = 0;
-      }
-
-      const bedX = cursorX;
-      const bedY = cursorY;
-      beds.push({ key: b.key, x: bedX, y: bedY, width: b.width, height: b.height });
-
-      b.ids.forEach((id, i) => {
-        const plant = garden.plants.get(id);
-        if (!plant) return;
-        const col = i % b.cols;
-        const row = Math.floor(i / b.cols);
-        const x = bedX + o.bedPadding + col * o.spacing + jitter(id, "x", o.jitter);
-        const y = bedY + o.bedPadding + row * o.spacing + jitter(id, "y", o.jitter);
-        placed.set(id, { ...plant, position: { x, y } });
-      });
-
-      cursorX += b.width + o.clusterGap;
-      rowHeight = Math.max(rowHeight, b.height);
-    }
-
-    // Re-emit back-to-front so overlapping canopies stack correctly.
+    // Back-to-front so overlapping canopies stack correctly.
     const ordered = new Map<NoteId, PositionedPlant>(
-      [...placed.entries()].sort((a, b) => a[1].position.y - b[1].position.y),
+      [...plants.entries()].sort((a, b) => a[1].position.y - b[1].position.y),
     );
-
     return { plants: ordered, beds };
   }
 
-  /** Choose a wrap width so the beds pack into a roughly square (slightly
-   *  landscape) block instead of one long row. */
-  private autoTargetWidth(sized: SizedBed[]): number {
-    const totalArea = sized.reduce((sum, b) => sum + b.width * b.height, 0);
-    const widest = sized.reduce((m, b) => Math.max(m, b.width), 0);
-    const byArea = Math.sqrt(totalArea * TARGET_ASPECT);
-    // Never narrower than the widest single bed (plus a gap on each side).
-    return Math.max(widest + this.opts.clusterGap * 2, byArea);
+  /** Measure a folder node's bed size and its items' local positions. */
+  private measure(node: FolderNode, memo: Map<FolderNode, Measured>): Measured {
+    const cached = memo.get(node);
+    if (cached) return cached;
+    const o = this.opts;
+
+    const boxes: Array<
+      | { kind: "plant"; id: NoteId; w: number; h: number }
+      | { kind: "folder"; node: FolderNode; w: number; h: number }
+    > = [];
+
+    for (const child of [...node.children.values()].sort((a, b) => a.name.localeCompare(b.name))) {
+      const m = this.measure(child, memo);
+      boxes.push({ kind: "folder", node: child, w: m.w, h: m.h });
+    }
+    for (const id of [...node.notes].sort()) {
+      boxes.push({ kind: "plant", id, w: o.plantWidth + 2 * o.jitter, h: o.plantHeight + 2 * o.jitter });
+    }
+
+    const totalArea = boxes.reduce((s, b) => s + b.w * b.h, 0);
+    const widest = boxes.reduce((m, b) => Math.max(m, b.w), 0);
+    const targetW = Math.max(widest, Math.sqrt(Math.max(1, totalArea) * o.aspect));
+    const { pos, innerW, innerH } = pack(boxes, targetW, o.gap);
+
+    const items: Item[] = boxes.map((b, i) => ({
+      ...b,
+      lx: o.padding + pos[i].x,
+      ly: o.padding + o.header + pos[i].y,
+    }));
+
+    const measured: Measured = {
+      w: innerW + o.padding * 2,
+      h: o.padding + o.header + innerH + o.padding,
+      items,
+    };
+    memo.set(node, measured);
+    return measured;
+  }
+
+  private placeNode(
+    node: FolderNode,
+    ox: number,
+    oy: number,
+    depth: number,
+    beds: Bed[],
+    plants: Map<NoteId, PositionedPlant>,
+    memo: Map<FolderNode, Measured>,
+    garden: GardenState,
+  ): void {
+    const o = this.opts;
+    const m = this.measure(node, memo);
+    beds.push({ key: node.key, label: node.name, depth, x: ox, y: oy, width: m.w, height: m.h });
+
+    for (const item of m.items) {
+      const ax = ox + item.lx;
+      const ay = oy + item.ly;
+      if (item.kind === "plant") {
+        const plant = garden.plants.get(item.id);
+        if (!plant) continue;
+        const jx = clamp(jitter(item.id, "x", o.jitter), -o.jitter, o.jitter);
+        const jy = clamp(jitter(item.id, "y", o.jitter), -o.jitter, o.jitter);
+        plants.set(item.id, {
+          ...plant,
+          position: { x: ax + o.jitter + jx, y: ay + o.jitter + jy },
+        });
+      } else {
+        this.placeNode(item.node, ax, ay, depth + 1, beds, plants, memo, garden);
+      }
+    }
   }
 }

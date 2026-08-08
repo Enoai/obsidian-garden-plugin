@@ -14,6 +14,9 @@ that Phase 1 already establishes.
 
 ## Phase 1 — The diagnostic garden
 
+> **Status: complete.** Painterly plants, folder beds, grass/tufts/signposts/
+> fence, hover cards, ambient sway, and a pan/zoom camera are all in.
+
 **Goal:** a beautiful, read-only view that makes vault health visceral at a
 glance. Prove the core mechanic before investing in interaction.
 
@@ -49,6 +52,11 @@ packs, seasons/weather. All deferred — but their seams exist (see below).
 ---
 
 ## Phase 2 — The tended garden
+
+> **Status: in progress.** Drag-a-plant-to-another-bed moves the note to that
+> folder (subfolder-aware), with a confirm popup, via `VaultMutator`. Beds are
+> keyed by full folder path. Still to come: shed (archive), compost (delete),
+> watering can, greenhouse, and persisted manual placement.
 
 **Goal:** the garden becomes a place you *tend*. Gardening actions map to real
 vault operations.

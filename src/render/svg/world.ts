@@ -10,9 +10,10 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 
 const GRASS = "#9cbf6a";
 const TUFT = "#7ba650";
-const SOIL = "#7c5230";
-const SOIL_TOP = "#875a37";
 const SOIL_RIM = "#5f4326";
+// Nested beds get progressively lighter soil so depth reads at a glance.
+const SOIL_SHADES = ["#7c5230", "#8a5d38", "#986a41", "#a5764a"];
+const SOIL_TOP_SHADES = ["#875a37", "#946640", "#a1734a", "#ad7f54"];
 
 function el(
   doc: Document,
@@ -36,9 +37,10 @@ export function drawGrass(doc: Document, width: number, height: number): SVGElem
 
 export function drawBed(doc: Document, bed: Bed): SVGElement {
   const g = doc.createElementNS(SVG_NS, "g");
-  g.appendChild(el(doc, "rect", { x: bed.x, y: bed.y, width: bed.width, height: bed.height, rx: 18, fill: SOIL_RIM }));
-  g.appendChild(el(doc, "rect", { x: bed.x, y: bed.y, width: bed.width, height: bed.height - 5, rx: 18, fill: SOIL }));
-  g.appendChild(el(doc, "rect", { x: bed.x + 4, y: bed.y + 4, width: bed.width - 8, height: bed.height - 12, rx: 14, fill: SOIL_TOP }));
+  const i = Math.min(bed.depth, SOIL_SHADES.length - 1);
+  g.appendChild(el(doc, "rect", { x: bed.x, y: bed.y, width: bed.width, height: bed.height, rx: 16, fill: SOIL_RIM }));
+  g.appendChild(el(doc, "rect", { x: bed.x, y: bed.y, width: bed.width, height: bed.height - 5, rx: 16, fill: SOIL_SHADES[i] }));
+  g.appendChild(el(doc, "rect", { x: bed.x + 4, y: bed.y + 4, width: bed.width - 8, height: bed.height - 12, rx: 12, fill: SOIL_TOP_SHADES[i] }));
   return g;
 }
 
@@ -60,26 +62,25 @@ export function drawTuft(doc: Document, x: number, y: number): SVGElement {
 
 const WOOD = "#c08a4e";
 const WOOD_DARK = "#8a5f31";
-const WOOD_STAKE = "#6f4a28";
 const WOOD_TEXT = "#3f2a12";
-const LABEL_HEIGHT = 18;
+const LABEL_HEIGHT = 16;
 
-/** A little wooden signpost naming the folder a bed represents. */
+/** A wooden header plaque naming the folder, sitting inside the bed's top strip
+ *  so nested beds label cleanly without anything poking outside. */
 export function drawBedLabel(doc: Document, bed: Bed): SVGElement {
   const g = doc.createElementNS(SVG_NS, "g");
-  const raw = bed.key === "(root)" ? "root" : bed.key;
-  const label = raw.length > 16 ? `${raw.slice(0, 15)}…` : raw;
-  const width = Math.max(46, label.length * 7 + 16);
-  const cx = bed.x + bed.width / 2;
-  const plaqueY = bed.y - LABEL_HEIGHT - 3;
+  const raw = bed.label;
+  const label = raw.length > 18 ? `${raw.slice(0, 17)}…` : raw;
+  const width = Math.min(bed.width - 12, Math.max(40, label.length * 7 + 14));
+  const x = bed.x + 8;
+  const y = bed.y + 5;
 
-  g.appendChild(el(doc, "rect", { x: cx - 2, y: bed.y - 6, width: 4, height: 12, fill: WOOD_STAKE }));
-  g.appendChild(el(doc, "rect", { x: cx - width / 2, y: plaqueY, width, height: LABEL_HEIGHT, rx: 5, fill: WOOD }));
-  g.appendChild(el(doc, "rect", { x: cx - width / 2, y: plaqueY, width, height: LABEL_HEIGHT, rx: 5, fill: "none", stroke: WOOD_DARK, "stroke-width": 1 }));
+  g.appendChild(el(doc, "rect", { x, y, width, height: LABEL_HEIGHT, rx: 5, fill: WOOD }));
+  g.appendChild(el(doc, "rect", { x, y, width, height: LABEL_HEIGHT, rx: 5, fill: "none", stroke: WOOD_DARK, "stroke-width": 1 }));
 
   const text = doc.createElementNS(SVG_NS, "text");
-  text.setAttribute("x", String(cx));
-  text.setAttribute("y", String(plaqueY + LABEL_HEIGHT / 2));
+  text.setAttribute("x", String(x + width / 2));
+  text.setAttribute("y", String(y + LABEL_HEIGHT / 2));
   text.setAttribute("text-anchor", "middle");
   text.setAttribute("dominant-baseline", "central");
   text.setAttribute("font-family", "-apple-system, system-ui, sans-serif");
@@ -90,10 +91,45 @@ export function drawBedLabel(doc: Document, bed: Bed): SVGElement {
   return g;
 }
 
-/** A wooden frame around the whole plot. */
-export function drawBorder(doc: Document, width: number, height: number): SVGElement {
+const FENCE = "#caa06a";
+const FENCE_DARK = "#8a5f31";
+const PICKET_STEP = 22;
+const FENCE_INSET = 11;
+
+/** A picket fence enclosing the whole plot. */
+export function drawFence(doc: Document, width: number, height: number): SVGElement {
   const g = doc.createElementNS(SVG_NS, "g");
-  g.appendChild(el(doc, "rect", { x: 3, y: 3, width: width - 6, height: height - 6, rx: 14, fill: "none", stroke: WOOD_DARK, "stroke-width": 4 }));
-  g.appendChild(el(doc, "rect", { x: 6, y: 6, width: width - 12, height: height - 12, rx: 11, fill: "none", stroke: WOOD, "stroke-width": 1.5, "stroke-opacity": 0.6 }));
+  const i = FENCE_INSET;
+
+  // Rail frame the pickets sit on.
+  g.appendChild(
+    el(doc, "rect", {
+      x: i, y: i, width: width - i * 2, height: height - i * 2, rx: 6,
+      fill: "none", stroke: FENCE_DARK, "stroke-width": 2, "stroke-opacity": 0.55,
+    }),
+  );
+
+  const picket = (cx: number, cy: number) => {
+    g.appendChild(el(doc, "rect", { x: cx - 3, y: cy - 8, width: 6, height: 16, rx: 2, fill: FENCE }));
+    g.appendChild(el(doc, "rect", { x: cx - 3, y: cy - 8, width: 6, height: 16, rx: 2, fill: "none", stroke: FENCE_DARK, "stroke-width": 0.75 }));
+  };
+
+  for (let x = i + PICKET_STEP; x <= width - i - PICKET_STEP; x += PICKET_STEP) {
+    picket(x, i);
+    picket(x, height - i);
+  }
+  for (let y = i + PICKET_STEP; y <= height - i - PICKET_STEP; y += PICKET_STEP) {
+    picket(i, y);
+    picket(width - i, y);
+  }
+
+  // Sturdier corner posts.
+  const post = (cx: number, cy: number) =>
+    g.appendChild(el(doc, "rect", { x: cx - 4, y: cy - 11, width: 8, height: 22, rx: 2, fill: FENCE_DARK }));
+  post(i, i);
+  post(width - i, i);
+  post(i, height - i);
+  post(width - i, height - i);
+
   return g;
 }

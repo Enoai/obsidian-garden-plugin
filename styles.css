@@ -63,6 +63,12 @@
   filter: brightness(1.08);
 }
 
+/* A plant being dragged to another bed. */
+.garden-plant--dragging {
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.35));
+  cursor: grabbing;
+}
+
 /* Ambient sway — the foliage rocks gently at its base. Per-plant delay and
  * duration are set inline by the renderer so plants don't move in unison. */
 .garden-foliage {
@@ -128,6 +134,35 @@
 .garden-tooltip-stats {
   color: var(--text-muted);
   font-size: 11px;
+}
+
+/* Confirm popup for a drag-to-move. */
+.garden-confirm {
+  position: absolute;
+  z-index: 12;
+  transform: translate(-50%, 8px);
+  max-width: 240px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  font-size: var(--font-ui-small);
+}
+
+.garden-confirm-msg {
+  color: var(--text-normal);
+  margin-bottom: 8px;
+}
+
+.garden-confirm-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.garden-confirm-row button {
+  cursor: pointer;
 }
 
 /* Shown while the first snapshot is being computed. */
