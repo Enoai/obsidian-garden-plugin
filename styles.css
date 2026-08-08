@@ -40,6 +40,12 @@
   pointer-events: none;
 }
 
+/* `display: flex` above would otherwise override the `hidden` attribute, so the
+ * cursor could never be hidden when the tool is put down. */
+.garden-can-cursor[hidden] {
+  display: none;
+}
+
 .garden-can-label {
   padding: 2px 7px;
   border-radius: 6px;
