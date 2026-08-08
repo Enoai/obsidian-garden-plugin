@@ -7,7 +7,7 @@
  * Phase 2 starts with folder moves; archive (shed) and trash (compost) will be
  * added here as they land.
  */
-import { App, TFile } from "obsidian";
+import { App, TFile, normalizePath } from "obsidian";
 import { NoteId } from "../model/types";
 
 export interface VaultMutator {
@@ -30,7 +30,7 @@ export class ObsidianVaultMutator implements VaultMutator {
     const file = this.app.vault.getAbstractFileByPath(id);
     if (!(file instanceof TFile)) return;
     const folder = toFolder === "(root)" ? "" : toFolder;
-    const newPath = folder ? `${folder}/${file.name}` : file.name;
+    const newPath = normalizePath(folder ? `${folder}/${file.name}` : file.name);
     if (newPath === id) return;
     await this.app.fileManager.renameFile(file, newPath);
   }
@@ -38,11 +38,11 @@ export class ObsidianVaultMutator implements VaultMutator {
   async archive(id: NoteId, archiveFolder: string): Promise<void> {
     const file = this.app.vault.getAbstractFileByPath(id);
     if (!(file instanceof TFile)) return;
-    const folder = archiveFolder || "Archive";
+    const folder = normalizePath(archiveFolder || "Archive");
     if (!this.app.vault.getAbstractFileByPath(folder)) {
       await this.app.vault.createFolder(folder);
     }
-    const newPath = `${folder}/${file.name}`;
+    const newPath = normalizePath(`${folder}/${file.name}`);
     if (newPath === id) return;
     await this.app.fileManager.renameFile(file, newPath);
   }
@@ -58,8 +58,8 @@ export class ObsidianVaultMutator implements VaultMutator {
     const file = this.app.vault.getAbstractFileByPath(id);
     if (!(file instanceof TFile)) return;
     // Rewriting the same content bumps the file's modified time (the freshness
-    // signal) without changing what the note says.
-    const data = await this.app.vault.read(file);
-    await this.app.vault.modify(file, data);
+    // signal) without changing what the note says. `process` is the preferred
+    // way to touch a file in the background.
+    await this.app.vault.process(file, (data) => data);
   }
 }

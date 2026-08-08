@@ -17,7 +17,7 @@ npm run dev      # esbuild watch — rebuilds main.js on save
 Load it into a test vault:
 
 ```bash
-ln -s "$(pwd)" /path/to/YourVault/.obsidian/plugins/obsidian-garden
+ln -s "$(pwd)" /path/to/YourVault/.obsidian/plugins/vault-garden
 ```
 
 Enable **Garden** under *Settings → Community plugins*. After a rebuild, reload
@@ -27,9 +27,9 @@ changes.
 Other scripts:
 
 ```bash
-npm run build    # type-check + production bundle
-npm test         # run the unit tests (model + layout)
-npm run lint     # lint / format check
+npm run build      # type-check + production bundle
+npm test           # run the unit tests (model + layout)
+npm run typecheck  # type-check only
 ```
 
 ## Project layout
@@ -128,7 +128,7 @@ Releases are automated by [`.github/workflows/release.yml`](../.github/workflows
 2. Update `CHANGELOG.md`.
 3. Commit, then tag and push:
    ```bash
-   git tag 0.1.0
+   git tag 1.0.0
    git push --tags
    ```
 4. CI runs tests, builds, and publishes a GitHub release with `main.js`,

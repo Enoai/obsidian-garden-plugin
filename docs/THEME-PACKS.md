@@ -9,7 +9,7 @@ sprite tier (bring-your-own plant art) will extend the same manifest.
 - Built-in themes ship with the plugin: **Verdant** (default), **Dusk**, **Amber**.
   Pick one under *Settings → Garden → Theme*.
 - Drop your own `*.json` packs into the plugin's `themes/` folder:
-  `<vault>/.obsidian/plugins/obsidian-garden/themes/`. They appear in the Theme
+  `<vault>/.obsidian/plugins/vault-garden/themes/`. They appear in the Theme
   dropdown by their `name`. (Reload the plugin after adding files.)
 
 ## Pack format
