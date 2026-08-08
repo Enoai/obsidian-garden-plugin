@@ -26,6 +26,9 @@ const TUFT_STEP = 46;
 const MIN_SCALE = 0.15;
 const MAX_SCALE = 4;
 const DRAG_THRESHOLD = 4;
+// Watering targets the whole plant box plus this margin, so small plants are
+// easy to hit.
+const WATER_HIT_PAD = 12;
 // Height of a bed's header strip (its signpost) — the grab handle for moving a
 // bed. Mirrors GardenLayout's `header`.
 const BED_HEADER = 22;
@@ -360,13 +363,11 @@ export class SvgRenderer implements Renderer {
     const onCan = this.structureAt(wx, wy)?.kind === "watering";
 
     if (this.wateringMode) {
-      if (plantEl instanceof SVGGElement) {
-        const id = plantEl.getAttribute("data-id");
-        if (id) {
-          this.pendingWater = { id, startX: e.clientX, startY: e.clientY, moved: false };
-          this.svg?.setPointerCapture(e.pointerId);
-          return;
-        }
+      const hit = this.plantAt(wx, wy);
+      if (hit) {
+        this.pendingWater = { id: hit.id, startX: e.clientX, startY: e.clientY, moved: false };
+        this.svg?.setPointerCapture(e.pointerId);
+        return;
       }
       this.beginPan(e); // pan (or click-to-exit) while the tool is active
       this.downOnCan = onCan;
@@ -433,7 +434,8 @@ export class SvgRenderer implements Renderer {
 
     if (this.wateringMode) {
       this.positionCanCursor(e.clientX, e.clientY);
-      this.highlightWaterTarget(e.target);
+      const { wx, wy } = this.clientToWorld(e.clientX, e.clientY);
+      this.highlightWaterTarget(wx, wy);
     }
 
     const pw = this.pendingWater;
@@ -574,16 +576,44 @@ export class SvgRenderer implements Renderer {
     }
   }
 
+  /** The plant whose (padded) box contains the point — nearest centre wins when
+   *  boxes overlap. Makes the whole plant cell a watering target. */
+  private plantAt(wx: number, wy: number): { id: NoteId; plant: PositionedPlant } | null {
+    let best: { id: NoteId; plant: PositionedPlant } | null = null;
+    let bestDist = Infinity;
+    for (const [id, plant] of this.lastGarden?.plants ?? []) {
+      const { x, y } = plant.position;
+      if (
+        wx >= x - WATER_HIT_PAD &&
+        wx <= x + PLANT_WIDTH + WATER_HIT_PAD &&
+        wy >= y - WATER_HIT_PAD &&
+        wy <= y + PLANT_HEIGHT + WATER_HIT_PAD
+      ) {
+        const cx = x + PLANT_WIDTH / 2;
+        const cy = y + PLANT_HEIGHT * 0.65; // the plant sits low in its box
+        const d = (wx - cx) ** 2 + (wy - cy) ** 2;
+        if (d < bestDist) {
+          bestDist = d;
+          best = { id, plant };
+        }
+      }
+    }
+    return best;
+  }
+
   /** Outline the plant under the spout tip and name it on the cursor label, so
    *  it's clear exactly what will be watered. */
-  private highlightWaterTarget(target: EventTarget | null): void {
-    const el = target instanceof Element ? target.closest(".garden-plant") : null;
-    const id = el?.getAttribute("data-id");
-    const plant = id ? this.lastGarden?.plants.get(id) : undefined;
-    if (plant) {
-      this.showHighlight(plant.position.x, plant.position.y, PLANT_WIDTH, PLANT_HEIGHT);
+  private highlightWaterTarget(wx: number, wy: number): void {
+    const hit = this.plantAt(wx, wy);
+    if (hit) {
+      this.showHighlight(
+        hit.plant.position.x - WATER_HIT_PAD,
+        hit.plant.position.y - WATER_HIT_PAD,
+        PLANT_WIDTH + WATER_HIT_PAD * 2,
+        PLANT_HEIGHT + WATER_HIT_PAD * 2,
+      );
       if (this.canLabel) {
-        this.canLabel.textContent = plant.title;
+        this.canLabel.textContent = hit.plant.title;
         this.canLabel.hidden = false;
       }
     } else {

@@ -17,7 +17,11 @@ let SOIL_RIM = "#5f4326";
 let SOIL_SHADES = ["#7c5230", "#8a5d38", "#986a41", "#a5764a"];
 let SOIL_TOP_SHADES = ["#875a37", "#946640", "#a1734a", "#ad7f54"];
 
+// Sprite art for structures, if the active theme is a sprite pack.
+let STRUCTURE_SPRITES: Record<string, string> | undefined;
+
 export function applyWorldTheme(theme: Theme): void {
+  STRUCTURE_SPRITES = theme.sprites?.structures;
   GRASS = theme.world.grass;
   TUFT = theme.world.tuft;
   SOIL_RIM = theme.world.soilRim;
@@ -120,8 +124,26 @@ function structureLabel(doc: Document, cx: number, y: number, text: string): SVG
   return t;
 }
 
+/** Draw a sprite pack's image for a structure, with its label underneath. */
+function structureImage(doc: Document, s: Structure, url: string, label: string): SVGElement {
+  const g = doc.createElementNS(SVG_NS, "g");
+  g.appendChild(
+    el(doc, "image", {
+      x: s.x + 6,
+      y: s.y + 2,
+      width: s.width - 12,
+      height: s.height - 18,
+      href: url,
+      preserveAspectRatio: "xMidYMax meet",
+    }),
+  );
+  g.appendChild(structureLabel(doc, s.x + s.width / 2, s.y + s.height - 6, label));
+  return g;
+}
+
 /** A little wooden shed — the archive drop target. */
 export function drawShed(doc: Document, s: Structure): SVGElement {
+  if (STRUCTURE_SPRITES?.shed) return structureImage(doc, s, STRUCTURE_SPRITES.shed, "shed · archive");
   const g = doc.createElementNS(SVG_NS, "g");
   const cx = s.x + s.width / 2;
   const bodyY = s.y + 34;
@@ -136,6 +158,7 @@ export function drawShed(doc: Document, s: Structure): SVGElement {
 
 /** A compost bin — the trash drop target. */
 export function drawCompost(doc: Document, s: Structure): SVGElement {
+  if (STRUCTURE_SPRITES?.compost) return structureImage(doc, s, STRUCTURE_SPRITES.compost, "compost");
   const g = doc.createElementNS(SVG_NS, "g");
   const cx = s.x + s.width / 2;
   const x = s.x + 28;
@@ -155,6 +178,7 @@ export function drawCompost(doc: Document, s: Structure): SVGElement {
 
 /** A watering can — the "touch / refresh" drop target. */
 export function drawWateringCan(doc: Document, s: Structure): SVGElement {
+  if (STRUCTURE_SPRITES?.watering) return structureImage(doc, s, STRUCTURE_SPRITES.watering, "watering can");
   const g = doc.createElementNS(SVG_NS, "g");
   const cx = s.x + s.width / 2;
   const CAN = "#4a9d8e";

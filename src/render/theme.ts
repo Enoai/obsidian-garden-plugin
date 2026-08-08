@@ -8,8 +8,18 @@
  */
 export type RGB = readonly [number, number, number];
 
+export type StructureKind = "shed" | "compost" | "watering";
+
+/** Optional sprite art (resolved resource URLs) supplied by a folder pack. */
+export interface ThemeSprites {
+  /** Species name → image URL (missing species fall back to procedural). */
+  plants?: Record<string, string>;
+  structures?: Partial<Record<StructureKind, string>>;
+}
+
 export interface Theme {
   name: string;
+  sprites?: ThemeSprites;
   world: {
     grass: string;
     tuft: string;

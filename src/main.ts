@@ -11,7 +11,7 @@ import { GardenModel } from "./model/GardenModel";
 import { GardenLayout } from "./layout/GardenLayout";
 import { SvgRenderer } from "./render/svg/SvgRenderer";
 import { PLANT_HEIGHT, PLANT_WIDTH } from "./render/svg/plants";
-import { BUILTIN_THEMES, DEFAULT_THEME, Theme, mergeTheme } from "./render/theme";
+import { BUILTIN_THEMES, DEFAULT_THEME, Theme, ThemeSprites, mergeTheme } from "./render/theme";
 import { GARDEN_VIEW_TYPE, GardenView, GardenViewDeps } from "./view/GardenView";
 import { ScoringConfig } from "./model/types";
 
@@ -82,7 +82,11 @@ export default class GardenPlugin extends Plugin {
     return this.themes.find((t) => t.name === this.settings.theme) ?? DEFAULT_THEME;
   }
 
-  /** Load user theme packs (*.json) from the plugin's themes/ folder. */
+  /**
+   * Load user theme packs from the plugin's themes/ folder. A pack is either a
+   * `*.json` file (palette only) or a subfolder with a `manifest.json` plus
+   * image assets (palette + sprites).
+   */
   private async loadThemePacks(): Promise<Theme[]> {
     const dir = `${this.manifest.dir ?? ""}/themes`;
     const adapter = this.app.vault.adapter;
@@ -90,6 +94,7 @@ export default class GardenPlugin extends Plugin {
     try {
       if (!(await adapter.exists(dir))) return out;
       const listing = await adapter.list(dir);
+
       for (const file of listing.files) {
         if (!file.endsWith(".json")) continue;
         try {
@@ -98,10 +103,40 @@ export default class GardenPlugin extends Plugin {
           console.error(`Garden: could not load theme pack ${file}`, e);
         }
       }
+
+      for (const folder of listing.folders) {
+        const manifestPath = `${folder}/manifest.json`;
+        if (!(await adapter.exists(manifestPath))) continue;
+        try {
+          const json = JSON.parse(await adapter.read(manifestPath));
+          const theme = mergeTheme(DEFAULT_THEME, json);
+          theme.sprites = this.resolveSprites(json.sprites, folder);
+          out.push(theme);
+        } catch (e) {
+          console.error(`Garden: could not load theme pack ${folder}`, e);
+        }
+      }
     } catch {
       /* no themes folder — that's fine */
     }
     return out;
+  }
+
+  /** Turn a pack manifest's relative sprite paths into loadable resource URLs. */
+  private resolveSprites(raw: unknown, folder: string): ThemeSprites | undefined {
+    if (!raw || typeof raw !== "object") return undefined;
+    const adapter = this.app.vault.adapter;
+    const url = (p: string) => adapter.getResourcePath(`${folder}/${p}`);
+    const map = (obj: unknown): Record<string, string> | undefined => {
+      if (!obj || typeof obj !== "object") return undefined;
+      const res: Record<string, string> = {};
+      for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+        if (typeof v === "string") res[k] = url(v);
+      }
+      return res;
+    };
+    const spec = raw as { plants?: unknown; structures?: unknown };
+    return { plants: map(spec.plants), structures: map(spec.structures) };
   }
 
   /** Re-render open garden views (e.g. after a theme/season setting change). */

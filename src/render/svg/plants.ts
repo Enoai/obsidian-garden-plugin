@@ -48,8 +48,11 @@ let TRUNK = "#6e4a28";
 // Succulents redden as they dry out.
 let SUCC_DEAD: RGB = [0xa8, 0x55, 0x30];
 let SUCC_TAN: RGB = [0xc0, 0x77, 0x50];
+// Sprite art per species, if the active theme is a sprite pack.
+let PLANT_SPRITES: Record<string, string> | undefined;
 
 export function applyPlantTheme(theme: Theme): void {
+  PLANT_SPRITES = theme.sprites?.plants;
   const f = theme.plant.foliage;
   GREEN_DARK = f.darkHealthy;
   BROWN_DARK = f.darkDead;
@@ -116,7 +119,10 @@ export function drawPlant(doc: Document, plant: PositionedPlant): SVGGElement {
   foliage.style.animationDelay = `-${(h % 6000) / 1000}s`;
   foliage.style.animationDuration = `${4.2 + ((h >> 8) % 20) / 10}s`;
 
-  if (plant.stage === "seed" || plant.stage === "sprout") {
+  const sprite = PLANT_SPRITES?.[plant.type];
+  if (sprite && plant.stage !== "seed" && plant.stage !== "sprout") {
+    drawSpriteImage(doc, foliage, sprite, scale, plant.stage);
+  } else if (plant.stage === "seed" || plant.stage === "sprout") {
     drawSprout(doc, foliage, freshness, scale);
   } else {
     drawSpecies(doc, foliage, plant.type, freshness, connectivity, scale, plant.stage);
@@ -233,6 +239,23 @@ function bloom(doc: Document, g: SVGGElement, cx: number, cy: number, r: number)
     g.appendChild(blob(doc, cx + dx * r, cy + dy * r, r * 0.7, r * 0.7, PETAL));
   }
   g.appendChild(blob(doc, cx, cy, r * 0.55, r * 0.55, PETAL_CENTER));
+}
+
+/** Draw a sprite pack's image for this plant, bottom-aligned at the soil.
+ *  Wilting notes are desaturated so health still reads through the art. */
+function drawSpriteImage(doc: Document, g: SVGGElement, url: string, scale: number, stage: Stage): void {
+  const w = 90 * scale;
+  const h = 90 * scale;
+  const img = svgEl(doc, "image", {
+    x: BASE_X - w / 2,
+    y: BASE_Y - h,
+    width: w,
+    height: h,
+    href: url,
+    preserveAspectRatio: "xMidYMax meet",
+  });
+  if (stage === "wilting") img.style.filter = "saturate(0.5) brightness(0.85) sepia(0.35)";
+  g.appendChild(img);
 }
 
 /** Dispatch to a species silhouette. Health (colour/size/stage) is applied

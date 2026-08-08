@@ -1,0 +1,13 @@
+{
+  "name": "Storybook",
+  "world": {
+    "grass": "#b6d98a",
+    "fence": "#d8b06a"
+  },
+  "sprites": {
+    "plants": {
+      "tree": "tree.svg",
+      "flower": "flower.svg"
+    }
+  }
+}

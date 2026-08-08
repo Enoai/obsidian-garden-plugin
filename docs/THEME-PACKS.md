@@ -63,9 +63,44 @@ code as a note ages); everything else is a CSS colour string.
 - Structures (shed, compost, watering can) use fixed art for now; they'll become
   themeable when the sprite tier lands.
 
-## Planned: sprite tier
+## Sprite packs (bring your own art)
 
-A future `sprites` section will let a pack supply images for plant species,
-stages, and structures (with a manifest mapping), rendered by a sprite
-implementation of the `Renderer` seam. The palette fields above will remain
-valid, so today's packs keep working.
+A pack can also supply **image art** for plants and structures. A sprite pack is
+a **folder** (not a single JSON) inside `themes/`:
+
+```
+themes/
+  Storybook/
+    manifest.json
+    tree.svg
+    flower.svg
+```
+
+`manifest.json` is the same as a palette pack, plus a `sprites` section whose
+paths are **relative to the pack folder**:
+
+```jsonc
+{
+  "name": "Storybook",
+  "world": { "grass": "#b6d98a" },        // palette overrides still apply
+  "sprites": {
+    "plants": {                            // species → image (any of:)
+      "bush": "bush.svg", "flower": "flower.svg", "tree": "tree.svg",
+      "fern": "fern.svg", "succulent": "succulent.png"
+    },
+    "structures": {                        // optional
+      "shed": "shed.svg", "compost": "compost.svg", "watering": "can.svg"
+    }
+  }
+}
+```
+
+- Images can be SVG or PNG. They're bottom-aligned on the plant's spot and
+  scale with the note's connectivity; wilting notes are desaturated so health
+  still reads through the art.
+- **Partial packs are fine.** Any species without a sprite falls back to the
+  procedural plant, so you can theme just the trees if you like. A bundled
+  **Storybook** pack (tree + flower) ships as a working example.
+- Young notes (seed/sprout) always use the procedural sprout.
+- Sprite loading uses Obsidian's resource paths (desktop); palette-only packs
+  work everywhere.
