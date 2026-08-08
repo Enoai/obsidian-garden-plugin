@@ -1,0 +1,10 @@
+{
+  "id": "obsidian-garden",
+  "name": "Garden",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Visualise your vault as a living garden — each note is a plant whose health reflects how recently you've edited it and how well it's linked.",
+  "author": "Declan Holmes-Carr",
+  "authorUrl": "",
+  "isDesktopOnly": false
+}

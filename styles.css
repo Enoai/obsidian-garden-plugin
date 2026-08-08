@@ -1,0 +1,256 @@
+/*
+ * Garden plugin styles. The plants themselves are drawn by the renderer (SVG);
+ * these rules cover the pane chrome, the ambient sway, and the hover tooltip.
+ */
+
+.garden-view {
+  position: relative; /* anchors the absolutely-positioned tooltip */
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--background-primary);
+}
+
+/* The element the Renderer mounts into. */
+.garden-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none; /* let the camera handle wheel/drag gestures */
+}
+
+.garden-canvas.grabbing {
+  cursor: grabbing;
+}
+
+/* While the watering-can tool is active, hide the OS cursor — the can element
+ * follows the pointer instead. */
+.garden-canvas.garden-watering {
+  cursor: none;
+}
+
+.garden-can-cursor {
+  position: absolute;
+  z-index: 13;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+/* `display: flex` above would otherwise override the `hidden` attribute, so the
+ * cursor could never be hidden when the tool is put down. */
+.garden-can-cursor[hidden] {
+  display: none;
+}
+
+.garden-can-label {
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-normal);
+  font-size: var(--font-ui-smaller);
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Zoom / fit controls, pinned to the top-right of the pane. */
+.garden-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 11;
+  display: flex;
+  gap: 4px;
+}
+
+.garden-controls button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  cursor: pointer;
+}
+
+.garden-controls button:hover {
+  background: var(--background-modifier-hover);
+}
+
+.garden-plant {
+  cursor: pointer;
+}
+
+/* Hover affordance without motion — the plant stays put, just brightens. */
+.garden-plant:hover {
+  filter: brightness(1.08);
+}
+
+/* A plant being dragged to another bed. */
+.garden-plant--dragging {
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.35));
+  cursor: grabbing;
+}
+
+/* Ambient sway — the foliage rocks gently at its base. Per-plant delay and
+ * duration are set inline by the renderer so plants don't move in unison. */
+.garden-foliage {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: garden-sway 6s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes garden-sway {
+  from {
+    transform: rotate(-2.6deg);
+  }
+  to {
+    transform: rotate(2.6deg);
+  }
+}
+
+/* Respect users who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .garden-foliage {
+    animation: none;
+  }
+}
+
+/* Hover tooltip. */
+.garden-tooltip {
+  position: absolute;
+  z-index: 10;
+  max-width: 220px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  font-size: var(--font-ui-small);
+  line-height: 1.35;
+  transform: translate(-50%, calc(-100% - 10px));
+}
+
+.garden-tooltip.garden-tooltip--below {
+  transform: translate(-50%, 10px);
+}
+
+.garden-tooltip-title {
+  display: block;
+  margin-bottom: 3px;
+  font-weight: var(--font-semibold);
+  color: var(--text-accent);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.garden-tooltip-title:hover {
+  text-decoration: underline;
+}
+
+.garden-tooltip-desc {
+  color: var(--text-normal);
+  margin-bottom: 4px;
+}
+
+.garden-tooltip-stats {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Confirm popup for a drag-to-move. */
+.garden-confirm {
+  position: absolute;
+  z-index: 12;
+  transform: translate(-50%, 8px);
+  max-width: 240px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  font-size: var(--font-ui-small);
+}
+
+.garden-confirm-msg {
+  color: var(--text-normal);
+  margin-bottom: 8px;
+}
+
+.garden-confirm-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.garden-confirm-row button {
+  cursor: pointer;
+}
+
+/* Seasonal weather overlay — floats above the garden, below the UI chrome. */
+.garden-weather {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.garden-weather-tint,
+.garden-weather-field {
+  position: absolute;
+  inset: 0;
+}
+
+.garden-flake {
+  position: absolute;
+  top: 0;
+  animation: garden-fall 8s linear infinite;
+}
+
+@keyframes garden-fall {
+  0% {
+    transform: translateY(-30px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.85;
+  }
+  90% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(100vh) translateX(var(--drift, 20px)) rotate(var(--spin, 180deg));
+    opacity: 0;
+  }
+}
+
+/* Keep the tint, drop the motion for users who prefer less of it. */
+@media (prefers-reduced-motion: reduce) {
+  .garden-weather-field {
+    display: none;
+  }
+}
+
+/* Shown while the first snapshot is being computed. */
+.garden-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}

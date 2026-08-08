@@ -9,3 +9,16 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+
+# Build output (esbuild writes main.js from src/). Committed only on release.
+main.js
+*.js.map
+
+# Obsidian plugin runtime data written into a test vault.
+data.json
+
+# IDE
+.idea/
+
+# OS cruft
+.DS_Store

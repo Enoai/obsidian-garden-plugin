@@ -1,14 +1,31 @@
 {
   "name": "obsidian-garden-plugin",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
+  "version": "0.1.0",
+  "description": "Visualise your Obsidian vault as a living garden — each note is a plant whose health reflects real vault metadata.",
+  "main": "main.js",
   "scripts": {
-    "build": "tsc"
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc --noEmit && node esbuild.config.mjs production",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
-  "dependencies": {},
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "garden",
+    "visualization"
+  ],
+  "author": "Declan Holmes-Carr",
+  "license": "MIT",
+  "private": true,
   "devDependencies": {
-    "typescript": "^5.5.3"
-  },
-  "private": true
+    "@types/node": "^20.11.0",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.21.5",
+    "obsidian": "^1.5.7",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.5"
+  }
 }
