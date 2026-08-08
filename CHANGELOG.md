@@ -3,7 +3,7 @@
 All notable changes to this project are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
-## [0.1.0] — unreleased
+## [1.0.0] — unreleased
 
 Initial release.
 
@@ -25,4 +25,4 @@ Initial release.
 - Built-in themes (Verdant, Dusk, Amber) and theme packs — palette (JSON) and
   sprite (bring-your-own art) tiers.
 
-[0.1.0]: https://github.com/Enoai/obsidian-garden-plugin/releases/tag/0.1.0
+[1.0.0]: https://github.com/Enoai/obsidian-garden-plugin/releases/tag/1.0.0

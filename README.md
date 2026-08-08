@@ -113,6 +113,19 @@ adapter, and `Renderer` / `Layout` seams. Start with
 [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the dev loop and extension
 recipes.
 
+## Roadmap
+
+Phases 1–3 are complete. On the backlog (unscheduled — contributions welcome):
+
+- **Deeper visual customization** — a pack manager, themeable structures and
+  backgrounds, and mapping plant species by tag/folder.
+- **Custom weather** — tunable particles and density, and weather that responds
+  to vault activity.
+- **Performance at scale** — viewport culling and a Canvas renderer for very
+  large vaults.
+
+Full list in [docs/ROADMAP.md](docs/ROADMAP.md#beyond--ideas--upcoming).
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md) — data flow, seams, scoring.
