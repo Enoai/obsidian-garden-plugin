@@ -12,13 +12,13 @@
  * drag that ends over a different bed emits a `dropped` event; the view confirms
  * and performs the folder move.
  */
-import { Bed, NoteId, PositionedGarden, PositionedPlant } from "../../model/types";
+import { Bed, NoteId, PositionedGarden, PositionedPlant, Structure } from "../../model/types";
 import { clamp } from "../../util/math";
 import { hashString } from "../../util/hash";
 import { parentFolder } from "../../util/paths";
 import { PlantEvent, Renderer } from "../Renderer";
 import { PLANT_HEIGHT, PLANT_WIDTH, drawPlant } from "./plants";
-import { drawBed, drawBedLabel, drawFence, drawGrass, drawTuft } from "./world";
+import { drawBed, drawBedLabel, drawCompost, drawFence, drawGrass, drawShed, drawTuft } from "./world";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TUFT_STEP = 46;
@@ -108,11 +108,12 @@ export class SvgRenderer implements Renderer {
     this.lastGarden = garden;
 
     const beds = garden.beds ?? [];
+    const structures = garden.structures ?? [];
     let minX = Infinity;
     let minY = Infinity;
     let maxX = 0;
     let maxY = 0;
-    for (const b of beds) {
+    for (const b of [...beds, ...structures]) {
       minX = Math.min(minX, b.x);
       minY = Math.min(minY, b.y);
       maxX = Math.max(maxX, b.x + b.width);
@@ -131,7 +132,7 @@ export class SvgRenderer implements Renderer {
     this.contentW = maxX + minX;
     this.contentH = maxY + minY;
 
-    this.renderWorld(doc, this.contentW, this.contentH, beds);
+    this.renderWorld(doc, this.contentW, this.contentH, beds, structures);
 
     const seen = new Set<NoteId>();
     for (const [id, plant] of garden.plants) {
@@ -178,10 +179,10 @@ export class SvgRenderer implements Renderer {
     }
   }
 
-  private renderWorld(doc: Document, width: number, height: number, beds: Bed[]): void {
+  private renderWorld(doc: Document, width: number, height: number, beds: Bed[], structures: Structure[]): void {
     const layer = this.worldLayer;
     if (!layer) return;
-    const sig = `${width}x${height}:${beds.map((b) => `${b.key}@${b.x},${b.y}`).join("|")}`;
+    const sig = `${width}x${height}:${beds.map((b) => `${b.key}@${b.x},${b.y},${b.width}x${b.height}`).join("|")}`;
     if (sig === this.worldSig) return;
     this.worldSig = sig;
 
@@ -199,6 +200,9 @@ export class SvgRenderer implements Renderer {
       }
     }
 
+    for (const s of structures) {
+      layer.appendChild(s.kind === "shed" ? drawShed(doc, s) : drawCompost(doc, s));
+    }
     for (const bed of beds) layer.appendChild(drawBedLabel(doc, bed));
     layer.appendChild(drawFence(doc, width, height));
   }
@@ -350,6 +354,17 @@ export class SvgRenderer implements Renderer {
         return;
       }
       const { wx, wy } = this.clientToWorld(e.clientX, e.clientY);
+      const structure = this.structureAt(wx, wy);
+      if (structure) {
+        this.handler?.({
+          type: "droppedStructure",
+          id: drag.id,
+          kind: structure.kind,
+          clientX: e.clientX,
+          clientY: e.clientY,
+        });
+        return;
+      }
       const target = this.bedAt(wx, wy);
       if (target && target.key !== drag.srcKey) {
         this.handler?.({
@@ -384,17 +399,30 @@ export class SvgRenderer implements Renderer {
     return best;
   }
 
+  private structureAt(wx: number, wy: number): Structure | null {
+    for (const s of this.lastGarden?.structures ?? []) {
+      if (wx >= s.x && wx <= s.x + s.width && wy >= s.y && wy <= s.y + s.height) return s;
+    }
+    return null;
+  }
+
   private updateHighlight(wx: number, wy: number, srcKey: string): void {
-    const overlay = this.overlayLayer;
-    if (!overlay) return;
-    const bed = this.bedAt(wx, wy);
-    if (!bed || bed.key === srcKey) {
-      this.clearHighlight();
+    const structure = this.structureAt(wx, wy);
+    if (structure) {
+      this.showHighlight(structure.x, structure.y, structure.width, structure.height);
       return;
     }
+    const bed = this.bedAt(wx, wy);
+    if (bed && bed.key !== srcKey) this.showHighlight(bed.x, bed.y, bed.width, bed.height);
+    else this.clearHighlight();
+  }
+
+  private showHighlight(x: number, y: number, width: number, height: number): void {
+    const overlay = this.overlayLayer;
+    if (!overlay) return;
     if (!this.highlight) {
       const rect = overlay.ownerDocument.createElementNS(SVG_NS, "rect");
-      rect.setAttribute("rx", "18");
+      rect.setAttribute("rx", "16");
       rect.setAttribute("fill", "rgba(255,255,255,0.18)");
       rect.setAttribute("stroke", "#ffffff");
       rect.setAttribute("stroke-width", "2");
@@ -403,10 +431,10 @@ export class SvgRenderer implements Renderer {
       this.highlight = rect;
       overlay.appendChild(rect);
     }
-    this.highlight.setAttribute("x", String(bed.x));
-    this.highlight.setAttribute("y", String(bed.y));
-    this.highlight.setAttribute("width", String(bed.width));
-    this.highlight.setAttribute("height", String(bed.height));
+    this.highlight.setAttribute("x", String(x));
+    this.highlight.setAttribute("y", String(y));
+    this.highlight.setAttribute("width", String(width));
+    this.highlight.setAttribute("height", String(height));
     this.highlight.style.display = "";
   }
 

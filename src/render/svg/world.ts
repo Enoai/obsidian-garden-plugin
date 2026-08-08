@@ -4,7 +4,7 @@
  * purpose — the garden should look like a garden in any Obsidian theme rather
  * than inverting with light/dark mode.
  */
-import { Bed } from "../../model/types";
+import { Bed, Structure } from "../../model/types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -88,6 +88,53 @@ export function drawBedLabel(doc: Document, bed: Bed): SVGElement {
   text.setAttribute("fill", WOOD_TEXT);
   text.textContent = label;
   g.appendChild(text);
+  return g;
+}
+
+function structureLabel(doc: Document, cx: number, y: number, text: string): SVGElement {
+  const t = doc.createElementNS(SVG_NS, "text");
+  t.setAttribute("x", String(cx));
+  t.setAttribute("y", String(y));
+  t.setAttribute("text-anchor", "middle");
+  t.setAttribute("dominant-baseline", "central");
+  t.setAttribute("font-family", "-apple-system, system-ui, sans-serif");
+  t.setAttribute("font-size", "11");
+  t.setAttribute("font-weight", "500");
+  t.setAttribute("fill", WOOD_TEXT);
+  t.textContent = text;
+  return t;
+}
+
+/** A little wooden shed — the archive drop target. */
+export function drawShed(doc: Document, s: Structure): SVGElement {
+  const g = doc.createElementNS(SVG_NS, "g");
+  const cx = s.x + s.width / 2;
+  const bodyY = s.y + 34;
+  g.appendChild(el(doc, "rect", { x: s.x + 20, y: bodyY, width: s.width - 40, height: 44, rx: 3, fill: "#a9764a" }));
+  g.appendChild(el(doc, "rect", { x: s.x + 20, y: bodyY, width: s.width - 40, height: 44, rx: 3, fill: "none", stroke: "#7c5636", "stroke-width": 1 }));
+  g.appendChild(el(doc, "path", { d: `M ${s.x + 12} ${bodyY + 2} L ${cx} ${s.y + 8} L ${s.x + s.width - 12} ${bodyY + 2} Z`, fill: "#6d4a2e" }));
+  g.appendChild(el(doc, "rect", { x: cx - 9, y: bodyY + 14, width: 18, height: 30, rx: 2, fill: "#7c5636" }));
+  g.appendChild(el(doc, "circle", { cx: cx + 4, cy: bodyY + 29, r: 1.6, fill: "#d8c79b" }));
+  g.appendChild(structureLabel(doc, cx, s.y + s.height - 6, "shed · archive"));
+  return g;
+}
+
+/** A compost bin — the trash drop target. */
+export function drawCompost(doc: Document, s: Structure): SVGElement {
+  const g = doc.createElementNS(SVG_NS, "g");
+  const cx = s.x + s.width / 2;
+  const x = s.x + 28;
+  const y = s.y + 34;
+  const w = s.width - 56;
+  const h = 44;
+  g.appendChild(el(doc, "rect", { x, y, width: w, height: h, rx: 4, fill: "#8a5a34" }));
+  g.appendChild(el(doc, "rect", { x, y, width: w, height: h, rx: 4, fill: "none", stroke: "#6a4426", "stroke-width": 1 }));
+  for (let i = 1; i <= 2; i++) {
+    g.appendChild(el(doc, "line", { x1: x, y1: y + (h / 3) * i, x2: x + w, y2: y + (h / 3) * i, stroke: "#6a4426", "stroke-width": 1.5 }));
+  }
+  g.appendChild(el(doc, "ellipse", { cx: x + w * 0.35, cy: y, rx: 12, ry: 6, fill: "#4e6b2f" }));
+  g.appendChild(el(doc, "ellipse", { cx: x + w * 0.68, cy: y - 1, rx: 10, ry: 5, fill: "#3f7a1f" }));
+  g.appendChild(structureLabel(doc, cx, s.y + s.height - 6, "compost"));
   return g;
 }
 

@@ -8,12 +8,14 @@ import type GardenPlugin from "./main";
 export interface GardenSettings {
   freshnessHalfLifeDays: number;
   connectivitySaturation: number;
+  archiveFolder: string;
   debounceMs: number;
 }
 
 export const DEFAULT_SETTINGS: GardenSettings = {
   freshnessHalfLifeDays: 30,
   connectivitySaturation: 8,
+  archiveFolder: "Archive",
   debounceMs: 250,
 };
 
@@ -53,6 +55,19 @@ export class GardenSettingTab extends PluginSettingTab {
           .setDynamicTooltip()
           .onChange(async (v) => {
             this.plugin.settings.connectivitySaturation = v;
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName("Archive folder")
+      .setDesc("Folder the shed archives notes into (created if missing).")
+      .addText((t) =>
+        t
+          .setValue(this.plugin.settings.archiveFolder)
+          .setPlaceholder("Archive")
+          .onChange(async (v) => {
+            this.plugin.settings.archiveFolder = v.trim() || "Archive";
             await this.plugin.saveSettings();
           }),
       );

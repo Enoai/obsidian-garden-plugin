@@ -10,10 +10,13 @@
  * correctly. Footprint size is passed in from the renderer to stay decoupled
  * from how plants are drawn.
  */
-import { Bed, GardenState, NoteId, PositionedGarden, PositionedPlant } from "../model/types";
+import { Bed, GardenState, NoteId, PositionedGarden, PositionedPlant, Structure } from "../model/types";
 import { hashString } from "../util/hash";
 import { clamp } from "../util/math";
 import { Layout } from "./Layout";
+
+const STRUCTURE_WIDTH = 130;
+const STRUCTURE_HEIGHT = 96;
 
 export interface GardenLayoutOptions {
   plantWidth: number;
@@ -138,17 +141,24 @@ export class GardenLayout implements Layout {
     const topGap = o.gap * 2;
     const { pos } = pack(sizes, targetW, topGap);
 
+    // Reserve a strip along the top for the shed + compost.
+    const structures: Structure[] = [
+      { kind: "shed", x: o.margin, y: o.margin, width: STRUCTURE_WIDTH, height: STRUCTURE_HEIGHT },
+      { kind: "compost", x: o.margin + STRUCTURE_WIDTH + o.gap, y: o.margin, width: STRUCTURE_WIDTH, height: STRUCTURE_HEIGHT },
+    ];
+    const bedsTop = o.margin + STRUCTURE_HEIGHT + o.gap * 2;
+
     const beds: Bed[] = [];
     const plants = new Map<NoteId, PositionedPlant>();
     topItems.forEach((node, i) => {
-      this.placeNode(node, o.margin + pos[i].x, o.margin + pos[i].y, 0, beds, plants, memo, garden);
+      this.placeNode(node, o.margin + pos[i].x, bedsTop + pos[i].y, 0, beds, plants, memo, garden);
     });
 
     // Back-to-front so overlapping canopies stack correctly.
     const ordered = new Map<NoteId, PositionedPlant>(
       [...plants.entries()].sort((a, b) => a[1].position.y - b[1].position.y),
     );
-    return { plants: ordered, beds };
+    return { plants: ordered, beds, structures };
   }
 
   /** Measure a folder node's bed size and its items' local positions. */

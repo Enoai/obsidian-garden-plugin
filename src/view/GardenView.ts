@@ -23,6 +23,7 @@ export interface GardenViewDeps {
   layout: Layout;
   renderer: Renderer;
   getConfig: () => ScoringConfig;
+  archiveFolder: string;
   debounceMs: number;
 }
 
@@ -82,7 +83,8 @@ export class GardenView extends ItemView {
       if (e.type === "select") this.openNote(e.id);
       else if (e.type === "hover") this.showTooltip(e.id, e.rect);
       else if (e.type === "unhover") this.scheduleHideTooltip();
-      else if (e.type === "dropped") this.showConfirm(e.id, e.toKey, e.clientX, e.clientY);
+      else if (e.type === "dropped") this.showMoveConfirm(e.id, e.toKey, e.clientX, e.clientY);
+      else if (e.type === "droppedStructure") this.showStructureConfirm(e.id, e.kind, e.clientX, e.clientY);
     });
 
     // Tooltip lives above the canvas; keeping the pointer on it cancels the hide
@@ -172,26 +174,72 @@ export class GardenView extends ItemView {
     }
   }
 
-  private showConfirm(id: NoteId, toKey: string, clientX: number, clientY: number): void {
+  private showMoveConfirm(id: NoteId, toKey: string, clientX: number, clientY: number): void {
+    const title = this.plantsById.get(id)?.title ?? id;
+    const folder = toKey === "(root)" ? "root" : toKey;
+    this.showConfirmPopup(
+      `Move “${title}” to ${folder}?`,
+      "Move",
+      false,
+      () => this.performMove(id, toKey),
+      clientX,
+      clientY,
+    );
+  }
+
+  private showStructureConfirm(
+    id: NoteId,
+    kind: "shed" | "compost",
+    clientX: number,
+    clientY: number,
+  ): void {
+    const title = this.plantsById.get(id)?.title ?? id;
+    if (kind === "shed") {
+      this.showConfirmPopup(
+        `Archive “${title}”?`,
+        "Archive",
+        false,
+        () => this.performArchive(id),
+        clientX,
+        clientY,
+      );
+    } else {
+      this.showConfirmPopup(
+        `Send “${title}” to trash?`,
+        "Delete",
+        true,
+        () => this.performTrash(id),
+        clientX,
+        clientY,
+      );
+    }
+  }
+
+  private showConfirmPopup(
+    message: string,
+    actionLabel: string,
+    danger: boolean,
+    action: () => Promise<void>,
+    clientX: number,
+    clientY: number,
+  ): void {
     const c = this.confirmEl;
     if (!c) return;
     this.cancelHide();
     if (this.tooltipEl) this.tooltipEl.hidden = true;
 
-    const plant = this.plantsById.get(id);
-    const folder = toKey === "(root)" ? "root" : toKey;
     c.empty();
-    c.createDiv({ cls: "garden-confirm-msg", text: `Move “${plant?.title ?? id}” to ${folder}?` });
+    c.createDiv({ cls: "garden-confirm-msg", text: message });
     const row = c.createDiv({ cls: "garden-confirm-row" });
-    const moveBtn = row.createEl("button", { cls: "mod-cta", text: "Move" });
+    const actBtn = row.createEl("button", { cls: danger ? "mod-warning" : "mod-cta", text: actionLabel });
     const cancelBtn = row.createEl("button", { text: "Cancel" });
-    moveBtn.addEventListener("click", () => {
+    actBtn.addEventListener("click", () => {
       c.hidden = true;
-      void this.performMove(id, toKey);
+      void action();
     });
     cancelBtn.addEventListener("click", () => {
       c.hidden = true;
-      this.refresh(); // snap the plant back to its bed
+      this.refresh(); // snap the plant back
     });
 
     const hostRect = this.contentEl.getBoundingClientRect();
@@ -202,6 +250,16 @@ export class GardenView extends ItemView {
 
   private async performMove(id: NoteId, toKey: string): Promise<void> {
     await this.deps.mutator.move(id, toKey);
+    this.refresh();
+  }
+
+  private async performArchive(id: NoteId): Promise<void> {
+    await this.deps.mutator.archive(id, this.deps.archiveFolder);
+    this.refresh();
+  }
+
+  private async performTrash(id: NoteId): Promise<void> {
+    await this.deps.mutator.trash(id);
     this.refresh();
   }
 

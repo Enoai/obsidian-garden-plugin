@@ -71,12 +71,24 @@ export interface Bed {
   height: number;
 }
 
+/** A fixed garden structure that acts as a drop target for a gardening action:
+ *  the shed archives a note, the compost trashes it. */
+export interface Structure {
+  kind: "shed" | "compost";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 /** `GardenState` after a `Layout` has placed every plant. */
 export interface PositionedGarden {
   /** Insertion order is back-to-front (ascending y) so overlap layers right. */
   plants: Map<NoteId, PositionedPlant>;
   /** Optional soil beds under plant clusters; a grid layout omits these. */
   beds?: Bed[];
+  /** Optional fixed structures (shed, compost) as drop targets. */
+  structures?: Structure[];
 }
 
 /** Tunable constants for the scoring model. Surfaced in settings. */

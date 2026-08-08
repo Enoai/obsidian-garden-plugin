@@ -48,6 +48,7 @@ export default class GardenPlugin extends Plugin {
       layout: new GardenLayout({ plantWidth: PLANT_WIDTH, plantHeight: PLANT_HEIGHT }),
       renderer: new SvgRenderer(),
       getConfig,
+      archiveFolder: this.settings.archiveFolder,
       debounceMs: this.settings.debounceMs,
     };
   }
