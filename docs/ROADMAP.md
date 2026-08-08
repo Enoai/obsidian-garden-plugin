@@ -117,6 +117,33 @@ themes and icon packs already spread.
 
 ---
 
+## Beyond — ideas & upcoming
+
+Not scheduled or promised — a backlog of directions the existing seams already
+make tractable. Contributions welcome.
+
+### Deeper visual customization
+- A **pack manager** in settings: browse, preview, and enable theme packs
+  instead of editing files.
+- Themeable **structures and backgrounds**, not just plants and palette.
+- Map **plant species by tag or folder** (e.g. `#project` → tree), overriding
+  the per-note default in `model/plantTypes.ts`.
+- More built-in species and themes; a way to share community packs.
+
+### Custom weather systems
+- User-tunable weather — pick the particle type and density, or make a season's
+  weather your own.
+- Weather (or an ambient mood) that **responds to vault activity** — a flurry on
+  a big writing day.
+- Pack-provided weather, so a theme pack can ship its own atmosphere.
+
+### Performance & scale
+- Viewport culling and a **Canvas renderer** for very large (10k+) vaults, behind
+  the existing `Renderer` seam — no model changes needed.
+- **Incremental recompute** (only the edited note and its neighbours) instead of
+  a full snapshot each change.
+- Move scoring off the main thread for the largest vaults.
+
 ## Guiding constraints (all phases)
 
 - **The garden never lies.** Visuals are always derived from real vault
