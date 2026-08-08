@@ -97,6 +97,8 @@ export class SvgRenderer implements Renderer {
   private pendingWater: { id: NoteId; startX: number; startY: number; moved: boolean } | null = null;
   private canCursor: HTMLDivElement | null = null;
   private escHandler: ((e: KeyboardEvent) => void) | null = null;
+  private lastClientX = 0;
+  private lastClientY = 0;
 
   mount(host: HTMLElement): void {
     const doc = host.ownerDocument;
@@ -184,9 +186,10 @@ export class SvgRenderer implements Renderer {
         node.classList.add("garden-plant");
         node.setAttribute("data-id", id);
         const el = node;
-        el.addEventListener("mouseenter", () =>
-          this.handler?.({ type: "hover", id, rect: el.getBoundingClientRect() }),
-        );
+        el.addEventListener("mouseenter", () => {
+          if (this.wateringMode) return; // no tooltips while watering
+          this.handler?.({ type: "hover", id, rect: el.getBoundingClientRect() });
+        });
         el.addEventListener("mouseleave", () => this.handler?.({ type: "unhover" }));
         this.nodes.set(id, node);
         this.sigs.set(id, "");
@@ -408,12 +411,12 @@ export class SvgRenderer implements Renderer {
   }
 
   private onPointerMove(e: PointerEvent): void {
-    if (this.wateringMode && this.canCursor && !this.canCursor.hidden) {
-      const rect = this.svg?.getBoundingClientRect();
-      if (rect) {
-        this.canCursor.style.left = `${e.clientX - rect.left - 2}px`;
-        this.canCursor.style.top = `${e.clientY - rect.top - 13}px`;
-      }
+    this.lastClientX = e.clientX;
+    this.lastClientY = e.clientY;
+
+    if (this.wateringMode) {
+      this.positionCanCursor(e.clientX, e.clientY);
+      this.highlightWaterTarget(e.target);
     }
 
     const pw = this.pendingWater;
@@ -516,12 +519,9 @@ export class SvgRenderer implements Renderer {
       this.panning = false;
       this.svg?.releasePointerCapture(e.pointerId);
       this.svg?.classList.remove("grabbing");
-      if (!this.panMoved) {
-        // A click (no drag): on the can → toggle the tool; elsewhere while the
-        // tool is active → put it down.
-        if (this.downOnCan) this.toggleWatering();
-        else if (this.wateringMode) this.exitWatering();
-      }
+      // A click (no drag) on the can toggles the tool. Clicking elsewhere does
+      // NOT drop the tool — it stays until you click the can again or hit Esc.
+      if (!this.panMoved && this.downOnCan) this.toggleWatering();
       this.downOnCan = false;
     }
   }
@@ -534,13 +534,36 @@ export class SvgRenderer implements Renderer {
   private enterWatering(): void {
     this.wateringMode = true;
     this.svg?.classList.add("garden-watering");
-    if (this.canCursor) this.canCursor.hidden = false;
+    if (this.canCursor) {
+      // Place it at the pointer right away so it doesn't flash in from a corner.
+      this.positionCanCursor(this.lastClientX, this.lastClientY);
+      this.canCursor.hidden = false;
+    }
   }
 
   private exitWatering(): void {
     this.wateringMode = false;
     this.svg?.classList.remove("garden-watering");
     if (this.canCursor) this.canCursor.hidden = true;
+    this.clearHighlight();
+  }
+
+  /** Keep the can's spout tip on the pointer (the can art's tip is at 2,13). */
+  private positionCanCursor(clientX: number, clientY: number): void {
+    const rect = this.svg?.getBoundingClientRect();
+    if (rect && this.canCursor) {
+      this.canCursor.style.left = `${clientX - rect.left - 2}px`;
+      this.canCursor.style.top = `${clientY - rect.top - 13}px`;
+    }
+  }
+
+  /** Outline the plant under the spout tip so it's clear what will be watered. */
+  private highlightWaterTarget(target: EventTarget | null): void {
+    const el = target instanceof Element ? target.closest(".garden-plant") : null;
+    const id = el?.getAttribute("data-id");
+    const plant = id ? this.lastGarden?.plants.get(id) : undefined;
+    if (plant) this.showHighlight(plant.position.x, plant.position.y, PLANT_WIDTH, PLANT_HEIGHT);
+    else this.clearHighlight();
   }
 
   /** The deepest (innermost) bed under the point, so drops target the most
