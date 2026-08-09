@@ -20,7 +20,7 @@ Load it into a test vault:
 ln -s "$(pwd)" /path/to/YourVault/.obsidian/plugins/vault-garden
 ```
 
-Enable **Garden** under *Settings → Community plugins*. After a rebuild, reload
+Enable **Vault Garden** under *Settings → Community plugins*. After a rebuild, reload
 the plugin (toggle it off/on, or use the Hot-Reload community plugin) to see
 changes.
 

@@ -1,4 +1,4 @@
-# 🌱 Obsidian Garden
+# 🌱 Vault Garden
 
 > Your vault as a living garden. Every note is a plant whose health reflects how
 > recently you've touched it and how well it's connected — so at a glance you can
@@ -6,7 +6,7 @@
 
 ![A garden bed of painterly plants on grass inside a wooden fence](docs/images/hero.svg)
 
-Graph View tells you *what links to what*. **Garden tells you what needs
+Graph View tells you *what links to what*. **Vault Garden tells you what needs
 tending.** A flourishing, flowering plant is a note you edit often and link
 well. A big, browning tree is an important note you've neglected. A wilted
 sprout with moss creeping in is a stale orphan you can prune.
@@ -56,10 +56,10 @@ telemetry.
 1. Download `main.js`, `manifest.json`, and `styles.css` from the
    [latest release](https://github.com/Enoai/obsidian-garden-plugin/releases).
 2. Copy them into `<your-vault>/.obsidian/plugins/vault-garden/`.
-3. Enable **Garden** in *Settings → Community plugins*.
+3. Enable **Vault Garden** in *Settings → Community plugins*.
 
 Open the garden from the ribbon (the sprout icon) or the command palette
-(`Garden: Open garden`).
+(`Vault Garden: Open garden`).
 
 ## Usage
 

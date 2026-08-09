@@ -76,7 +76,7 @@ export class GardenView extends ItemView {
   }
 
   getDisplayText(): string {
-    return "Garden";
+    return "Vault Garden";
   }
 
   getIcon(): string {

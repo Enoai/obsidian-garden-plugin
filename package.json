@@ -1,7 +1,7 @@
 {
-  "name": "obsidian-garden-plugin",
-  "version": "1.0.0",
-  "description": "Visualise your Obsidian vault as a living garden — each note is a plant whose health reflects real vault metadata.",
+  "name": "obsidian-vault-garden-plugin",
+  "version": "1.0.1",
+  "description": "A visual garden of your Obsidian vault — each note is a plant whose health reflects real vault metadata.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
@@ -13,6 +13,7 @@
   "keywords": [
     "obsidian",
     "obsidian-plugin",
+    "vault-garden",
     "garden",
     "visualization"
   ],

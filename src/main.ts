@@ -101,7 +101,7 @@ export default class GardenPlugin extends Plugin {
         try {
           out.push(mergeTheme(DEFAULT_THEME, JSON.parse(await adapter.read(file))));
         } catch (e) {
-          console.error(`Garden: could not load theme pack ${file}`, e);
+          console.error(`Vault Garden: could not load theme pack ${file}`, e);
         }
       }
 
@@ -114,7 +114,7 @@ export default class GardenPlugin extends Plugin {
           theme.sprites = this.resolveSprites(json.sprites, folder);
           out.push(theme);
         } catch (e) {
-          console.error(`Garden: could not load theme pack ${folder}`, e);
+          console.error(`Vault Garden: could not load theme pack ${folder}`, e);
         }
       }
     } catch {

@@ -3,7 +3,12 @@
 All notable changes to this project are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] — unreleased
+## [1.0.1] — 2026-08-09
+
+### Changed
+- Renamed the plugin to **Vault Garden** for the community directory.
+
+## [1.0.0] — 2026-08-09
 
 Initial release.
 
@@ -30,4 +35,5 @@ Initial release.
   pauses when the garden isn't visible, and can be turned off in settings.
 - Removed per-plant compositor layers and a fit() busy-loop.
 
+[1.0.1]: https://github.com/Enoai/obsidian-garden-plugin/releases/tag/1.0.1
 [1.0.0]: https://github.com/Enoai/obsidian-garden-plugin/releases/tag/1.0.0
