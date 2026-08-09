@@ -49,7 +49,6 @@ export class GardenSettingTab extends PluginSettingTab {
         s
           .setLimits(1, 180, 1)
           .setValue(this.plugin.settings.freshnessHalfLifeDays)
-          .setDynamicTooltip()
           .onChange(async (v) => {
             this.plugin.settings.freshnessHalfLifeDays = v;
             await this.plugin.saveSettings();
@@ -63,7 +62,6 @@ export class GardenSettingTab extends PluginSettingTab {
         s
           .setLimits(1, 40, 1)
           .setValue(this.plugin.settings.connectivitySaturation)
-          .setDynamicTooltip()
           .onChange(async (v) => {
             this.plugin.settings.connectivitySaturation = v;
             await this.plugin.saveSettings();
@@ -138,7 +136,6 @@ export class GardenSettingTab extends PluginSettingTab {
         s
           .setLimits(50, 1000, 50)
           .setValue(this.plugin.settings.debounceMs)
-          .setDynamicTooltip()
           .onChange(async (v) => {
             this.plugin.settings.debounceMs = v;
             await this.plugin.saveSettings();
