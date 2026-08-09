@@ -105,11 +105,26 @@
 }
 
 /* Ambient sway — the foliage rocks gently at its base. Per-plant delay and
- * duration are set inline by the renderer so plants don't move in unison. */
+ * duration come from garden-sway-N variant classes (assigned by plant id). */
 .garden-foliage {
   transform-box: fill-box;
   transform-origin: bottom center;
   animation: garden-sway 6s ease-in-out infinite alternate;
+}
+
+.garden-sway-0 { animation-delay: -0.2s; animation-duration: 4.2s; }
+.garden-sway-1 { animation-delay: -0.8s; animation-duration: 4.5s; }
+.garden-sway-2 { animation-delay: -1.4s; animation-duration: 4.8s; }
+.garden-sway-3 { animation-delay: -2.1s; animation-duration: 5.1s; }
+.garden-sway-4 { animation-delay: -2.7s; animation-duration: 5.4s; }
+.garden-sway-5 { animation-delay: -3.3s; animation-duration: 5.7s; }
+.garden-sway-6 { animation-delay: -4.0s; animation-duration: 6.0s; }
+.garden-sway-7 { animation-delay: -4.6s; animation-duration: 4.4s; }
+.garden-sway-8 { animation-delay: -5.2s; animation-duration: 4.7s; }
+.garden-sway-9 { animation-delay: -5.8s; animation-duration: 5.0s; }
+
+.garden-sprite-wilted {
+  filter: saturate(0.5) brightness(0.85) sepia(0.35);
 }
 
 @keyframes garden-sway {
@@ -230,8 +245,19 @@
 .garden-flake {
   position: absolute;
   top: 0;
-  animation: garden-fall 8s linear infinite;
+  animation: garden-fall var(--flake-duration, 8s) linear infinite;
+  animation-delay: var(--flake-delay, 0s);
 }
+
+.garden-flake--petal-a { background: #f2b8cd; border-radius: 50% 0 50% 0; }
+.garden-flake--petal-b { background: #e88ba9; border-radius: 50% 0 50% 0; }
+.garden-flake--petal-c { background: #f4c9d6; border-radius: 50% 0 50% 0; }
+.garden-flake--pollen { background: rgba(245, 225, 120, 0.7); border-radius: 50%; }
+.garden-flake--leaf-a { background: #c56a2c; border-radius: 0 100% 0 100%; }
+.garden-flake--leaf-b { background: #d98a3a; border-radius: 0 100% 0 100%; }
+.garden-flake--leaf-c { background: #a8471f; border-radius: 0 100% 0 100%; }
+.garden-flake--leaf-d { background: #c9a13a; border-radius: 0 100% 0 100%; }
+.garden-flake--snow { background: rgba(255, 255, 255, 0.9); border-radius: 50%; }
 
 @keyframes garden-fall {
   0% {

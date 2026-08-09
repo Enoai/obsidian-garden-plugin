@@ -113,11 +113,9 @@ export function drawPlant(doc: Document, plant: PositionedPlant): SVGGElement {
 
   // Foliage sits in its own group that CSS sways from the base. Each plant is
   // desynced by its id so the garden doesn't move in unison.
-  const foliage = doc.createElementNS(SVG_NS, "g");
-  foliage.classList.add("garden-foliage");
   const h = hashString(plant.id);
-  foliage.style.animationDelay = `-${(h % 6000) / 1000}s`;
-  foliage.style.animationDuration = `${4.2 + ((h >> 8) % 20) / 10}s`;
+  const foliage = doc.createElementNS(SVG_NS, "g");
+  foliage.classList.add("garden-foliage", `garden-sway-${h % 10}`);
 
   const sprite = PLANT_SPRITES?.[plant.type];
   if (sprite && plant.stage !== "seed" && plant.stage !== "sprout") {
@@ -254,7 +252,7 @@ function drawSpriteImage(doc: Document, g: SVGGElement, url: string, scale: numb
     href: url,
     preserveAspectRatio: "xMidYMax meet",
   });
-  if (stage === "wilting") img.style.filter = "saturate(0.5) brightness(0.85) sepia(0.35)";
+  if (stage === "wilting") img.classList.add("garden-sprite-wilted");
   g.appendChild(img);
 }
 

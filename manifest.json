@@ -1,8 +1,8 @@
 {
   "id": "vault-garden",
   "name": "Vault Garden",
-  "version": "1.0.1",
-  "minAppVersion": "1.4.0",
+  "version": "1.0.2",
+  "minAppVersion": "1.7.2",
   "description": "A visual garden of your vault — each note is a plant whose health reflects how recently you've edited it and how well it's linked.",
   "author": "Declan Holmes-Carr",
   "authorUrl": "https://github.com/Enoai",
