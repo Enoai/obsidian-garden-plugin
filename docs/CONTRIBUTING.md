@@ -28,6 +28,7 @@ Other scripts:
 
 ```bash
 npm run build      # type-check + production bundle
+npm run lint       # Obsidian community ESLint rules
 npm test           # run the unit tests (model + layout)
 npm run typecheck  # type-check only
 ```
@@ -115,7 +116,7 @@ npm test
 - Small, focused commits with a clear message ("why" in the body if not obvious).
 - Keep changes within one seam where you can — it makes review easy and keeps
   the layers honest.
-- Run `npm run build` and `npm test` before opening a PR.
+- Run `npm run lint`, `npm run build`, and `npm test` before opening a PR.
 - Describe the user-visible effect and the phase it belongs to.
 
 ## Releasing

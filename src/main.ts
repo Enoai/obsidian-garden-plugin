@@ -70,12 +70,12 @@ export default class GardenPlugin extends Plugin {
     const { workspace } = this.app;
     const existing = workspace.getLeavesOfType(GARDEN_VIEW_TYPE);
     if (existing.length > 0) {
-      workspace.revealLeaf(existing[0]);
+      void workspace.revealLeaf(existing[0]);
       return;
     }
     const leaf = workspace.getLeaf(true);
     await leaf.setViewState({ type: GARDEN_VIEW_TYPE, active: true });
-    workspace.revealLeaf(leaf);
+    void workspace.revealLeaf(leaf);
   }
 
   /** The theme matching the current setting, falling back to the default. */
@@ -99,7 +99,9 @@ export default class GardenPlugin extends Plugin {
       for (const file of listing.files) {
         if (!file.endsWith(".json")) continue;
         try {
-          out.push(mergeTheme(DEFAULT_THEME, JSON.parse(await adapter.read(file))));
+          out.push(
+            mergeTheme(DEFAULT_THEME, JSON.parse(await adapter.read(file)) as Partial<Theme>),
+          );
         } catch (e) {
           console.error(`Vault Garden: could not load theme pack ${file}`, e);
         }
@@ -109,9 +111,11 @@ export default class GardenPlugin extends Plugin {
         const manifestPath = normalizePath(`${folder}/manifest.json`);
         if (!(await adapter.exists(manifestPath))) continue;
         try {
-          const json = JSON.parse(await adapter.read(manifestPath));
-          const theme = mergeTheme(DEFAULT_THEME, json);
-          theme.sprites = this.resolveSprites(json.sprites, folder);
+          const json = JSON.parse(await adapter.read(manifestPath)) as unknown;
+          const theme = mergeTheme(DEFAULT_THEME, json as Partial<Theme>);
+          if (json && typeof json === "object" && "sprites" in json) {
+            theme.sprites = this.resolveSprites((json as { sprites?: unknown }).sprites, folder);
+          }
           out.push(theme);
         } catch (e) {
           console.error(`Vault Garden: could not load theme pack ${folder}`, e);
@@ -149,7 +153,8 @@ export default class GardenPlugin extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) };
+    const data = (await this.loadData()) as Partial<GardenSettings> | null;
+    this.settings = { ...DEFAULT_SETTINGS, ...data };
   }
 
   async saveSettings(): Promise<void> {

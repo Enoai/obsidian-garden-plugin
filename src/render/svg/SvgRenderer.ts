@@ -141,8 +141,7 @@ export class SvgRenderer implements Renderer {
     this.resizeObs.observe(svg);
 
     // A watering can that follows the cursor while the tool is active.
-    const cursor = doc.createElement("div");
-    cursor.className = "garden-can-cursor";
+    const cursor = host.createDiv({ cls: "garden-can-cursor" });
     const canSvg = doc.createElementNS(SVG_NS, "svg");
     canSvg.setAttribute("width", "32");
     canSvg.setAttribute("height", "32");
@@ -157,12 +156,8 @@ export class SvgRenderer implements Renderer {
     addPart("path", { d: "M9 18 L2 13", stroke: "#37796d", "stroke-width": "2", "stroke-linecap": "round" });
     addPart("ellipse", { cx: "2", cy: "13", rx: "2.4", ry: "1.6", fill: "#37796d" });
     cursor.appendChild(canSvg);
-    const label = doc.createElement("span");
-    label.className = "garden-can-label";
-    label.hidden = true;
-    cursor.appendChild(label);
+    const label = cursor.createSpan({ cls: "garden-can-label", attr: { hidden: "" } });
     cursor.hidden = true;
-    host.appendChild(cursor);
     this.canCursor = cursor;
     this.canLabel = label;
 
@@ -171,7 +166,7 @@ export class SvgRenderer implements Renderer {
     };
     window.addEventListener("keydown", this.escHandler);
 
-    this.attachControls(host, doc);
+    this.attachControls(host);
     this.applyTransform();
   }
 
@@ -333,7 +328,7 @@ export class SvgRenderer implements Renderer {
   }
 
   private scheduleCull(): void {
-    if (this.cullTimer !== null) clearTimeout(this.cullTimer);
+    if (this.cullTimer !== null) window.clearTimeout(this.cullTimer);
     this.cullTimer = window.setTimeout(() => {
       this.cullTimer = null;
       this.updateCull();
@@ -376,7 +371,7 @@ export class SvgRenderer implements Renderer {
 
   // --- Pointer interaction --------------------------------------------------
 
-  private attachControls(host: HTMLElement, doc: Document): void {
+  private attachControls(host: HTMLElement): void {
     const svg = this.svg;
     if (!svg) return;
 
@@ -396,14 +391,14 @@ export class SvgRenderer implements Renderer {
     svg.addEventListener("pointerup", end);
     svg.addEventListener("pointercancel", end);
 
-    const controls = doc.createElement("div");
-    controls.className = "garden-controls";
+    const controls = host.createDiv({ cls: "garden-controls" });
     const button = (label: string, title: string, onClick: () => void) => {
-      const b = doc.createElement("button");
-      b.textContent = label;
-      b.setAttribute("aria-label", title);
-      b.addEventListener("click", onClick);
-      controls.appendChild(b);
+      controls
+        .createEl("button", {
+          text: label,
+          attr: { "aria-label": title },
+        })
+        .addEventListener("click", onClick);
     };
     const zoomButton = (factor: number) => {
       const rect = svg.getBoundingClientRect();
@@ -631,8 +626,10 @@ export class SvgRenderer implements Renderer {
   private positionCanCursor(clientX: number, clientY: number): void {
     const rect = this.svg?.getBoundingClientRect();
     if (rect && this.canCursor) {
-      this.canCursor.style.left = `${clientX - rect.left - 2}px`;
-      this.canCursor.style.top = `${clientY - rect.top - 13}px`;
+      this.canCursor.setCssStyles({
+        left: `${clientX - rect.left - 2}px`,
+        top: `${clientY - rect.top - 13}px`,
+      });
     }
   }
 
@@ -733,11 +730,11 @@ export class SvgRenderer implements Renderer {
     this.highlight.setAttribute("y", String(y));
     this.highlight.setAttribute("width", String(width));
     this.highlight.setAttribute("height", String(height));
-    this.highlight.style.display = "";
+    this.highlight.removeAttribute("display");
   }
 
   private clearHighlight(): void {
-    if (this.highlight) this.highlight.style.display = "none";
+    if (this.highlight) this.highlight.setAttribute("display", "none");
   }
 
   /** Re-render the last garden (used to snap a plant back / restore z-order). */
@@ -752,7 +749,7 @@ export class SvgRenderer implements Renderer {
   destroy(): void {
     this.resizeObs?.disconnect();
     this.resizeObs = null;
-    if (this.cullTimer !== null) clearTimeout(this.cullTimer);
+    if (this.cullTimer !== null) window.clearTimeout(this.cullTimer);
     this.cullTimer = null;
     this.svg?.remove();
     this.controls?.remove();

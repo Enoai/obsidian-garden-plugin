@@ -1,6 +1,6 @@
 import esbuild from "esbuild";
 import process from "process";
-import builtins from "builtin-modules";
+import { builtinModules } from "node:module";
 
 // esbuild bundles src/main.ts -> main.js (the file Obsidian loads).
 //   node esbuild.config.mjs              -> watch mode (dev)
@@ -17,7 +17,7 @@ const context = await esbuild.context({
   entryPoints: ["src/main.ts"],
   bundle: true,
   // Obsidian, Electron, and Node builtins are provided by the host at runtime.
-  external: ["obsidian", "electron", ...builtins],
+  external: ["obsidian", "electron", ...builtinModules],
   format: "cjs",
   target: "es2018",
   platform: "browser",

@@ -3,6 +3,11 @@
 All notable changes to this project are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] — 2026-08-09
+
+### Fixed
+- Community directory review: ESLint compliance, minAppVersion 1.7.2, and DOM style API fixes.
+
 ## [1.0.1] — 2026-08-09
 
 ### Changed
@@ -35,5 +40,6 @@ Initial release.
   pauses when the garden isn't visible, and can be turned off in settings.
 - Removed per-plant compositor layers and a fit() busy-loop.
 
+[1.0.2]: https://github.com/Enoai/obsidian-garden-plugin/releases/tag/1.0.2
 [1.0.1]: https://github.com/Enoai/obsidian-garden-plugin/releases/tag/1.0.1
 [1.0.0]: https://github.com/Enoai/obsidian-garden-plugin/releases/tag/1.0.0

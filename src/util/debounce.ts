@@ -7,10 +7,10 @@ export function debounce<A extends unknown[]>(
   fn: (...args: A) => void,
   waitMs: number,
 ): (...args: A) => void {
-  let timer: ReturnType<typeof setTimeout> | null = null;
+  let timer: number | null = null;
   return (...args: A) => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
+    if (timer) window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
       timer = null;
       fn(...args);
     }, waitMs);

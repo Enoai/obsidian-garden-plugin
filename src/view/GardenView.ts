@@ -76,7 +76,7 @@ export class GardenView extends ItemView {
   }
 
   getDisplayText(): string {
-    return "Vault Garden";
+    return "Vault garden";
   }
 
   getIcon(): string {
@@ -204,8 +204,10 @@ export class GardenView extends ItemView {
     const topRel = rect.top - hostRect.top;
     const below = topRel < 120;
     tip.toggleClass("garden-tooltip--below", below);
-    tip.style.left = `${centerX}px`;
-    tip.style.top = `${below ? rect.bottom - hostRect.top : topRel}px`;
+    tip.setCssStyles({
+      left: `${centerX}px`,
+      top: `${below ? rect.bottom - hostRect.top : topRel}px`,
+    });
     tip.hidden = false;
   }
 
@@ -293,8 +295,10 @@ export class GardenView extends ItemView {
     });
 
     const hostRect = this.contentEl.getBoundingClientRect();
-    c.style.left = `${clamp(clientX - hostRect.left, 8, hostRect.width - 8)}px`;
-    c.style.top = `${clamp(clientY - hostRect.top, 8, hostRect.height - 8)}px`;
+    c.setCssStyles({
+      left: `${clamp(clientX - hostRect.left, 8, hostRect.width - 8)}px`,
+      top: `${clamp(clientY - hostRect.top, 8, hostRect.height - 8)}px`,
+    });
     c.hidden = false;
   }
 
