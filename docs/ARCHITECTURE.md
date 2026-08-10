@@ -232,6 +232,23 @@ All three are **pure functions** — same inputs, same output, no side effects,
 no Obsidian. They're the easiest thing in the codebase to test, and the
 [tests](CONTRIBUTING.md#testing) prove the curves behave.
 
+## Visual reference
+
+The five plant species, each shown healthy (top) and neglected (bottom) — the
+same note grows greener/upright when fresh and browns/droops as it goes stale:
+
+![The five plant species, fresh and wilting](images/species.svg)
+
+Seasonal atmosphere — a subtle tint plus drifting particles, by the real date
+or a setting: spring petals, summer pollen, autumn leaves, winter snow:
+
+![The four seasons](images/seasons.svg)
+
+Theme packs re-skin everything — the three built-in themes below, plus palette
+or sprite packs you drop into the `themes/` folder ([THEME-PACKS.md](THEME-PACKS.md)):
+
+![The garden in the Verdant, Dusk, and Amber themes](images/themes.svg)
+
 ## Performance strategy
 
 - **Debounce** vault/metadata events — they fire rapidly while typing. Recompute
