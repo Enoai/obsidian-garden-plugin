@@ -4,7 +4,7 @@
 > recently you've touched it and how well it's connected — so at a glance you can
 > see what's thriving and what needs tending.
 
-![A garden bed of painterly plants on grass inside a wooden fence](docs/images/hero.svg)
+![A full Vault Garden: notes as plants in nested folder beds, with a shed, compost bin and watering can, inside a fence](docs/images/hero.svg)
 
 Graph View tells you *what links to what*. **Vault Garden tells you what needs
 tending.** A flourishing, flowering plant is a note you edit often and link
