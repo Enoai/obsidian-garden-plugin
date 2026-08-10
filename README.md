@@ -4,7 +4,7 @@
 > recently you've touched it and how well it's connected — so at a glance you can
 > see what's thriving and what needs tending.
 
-![A full Vault Garden: notes as plants in nested folder beds, with a shed, compost bin and watering can, inside a fence](docs/images/hero.svg)
+![A full Vault Garden: notes as plants in nested folder beds, with a shed, compost bin and watering can, inside a fence](docs/images/hero.png)
 
 Graph View tells you *what links to what*. **Vault Garden tells you what needs
 tending.** A flourishing, flowering plant is a note you edit often and link
@@ -54,17 +54,17 @@ telemetry.
 Five plant species, each shown fresh and wilting — the same note greens and
 stands upright when you edit it, then browns and droops as it goes stale:
 
-![The five plant species, fresh and wilting, in soil beds](docs/images/species.svg)
+![The five plant species, fresh and wilting, in soil beds](docs/images/species.png)
 
 Seasonal atmosphere — a subtle tint plus drifting particles (spring petals,
 summer pollen, autumn leaves, winter snow), by the real date or your choice:
 
-![The four seasons](docs/images/seasons.svg)
+![The four seasons](docs/images/seasons.png)
 
 Theme packs re-skin the whole garden — the three built-in themes below, plus
 palette or sprite packs you drop into the `themes/` folder:
 
-![The garden in the Verdant, Dusk, and Amber themes](docs/images/themes.svg)
+![The garden in the Verdant, Dusk, and Amber themes](docs/images/themes.png)
 
 ## Install
 
