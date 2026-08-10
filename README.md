@@ -49,6 +49,23 @@ telemetry.
   (bring-your-own plant/structure art) into the plugin's `themes/` folder. See
   [docs/THEME-PACKS.md](docs/THEME-PACKS.md).
 
+## Gallery
+
+Five plant species, each shown fresh and wilting — the same note greens and
+stands upright when you edit it, then browns and droops as it goes stale:
+
+![The five plant species, fresh and wilting, in soil beds](docs/images/species.svg)
+
+Seasonal atmosphere — a subtle tint plus drifting particles (spring petals,
+summer pollen, autumn leaves, winter snow), by the real date or your choice:
+
+![The four seasons](docs/images/seasons.svg)
+
+Theme packs re-skin the whole garden — the three built-in themes below, plus
+palette or sprite packs you drop into the `themes/` folder:
+
+![The garden in the Verdant, Dusk, and Amber themes](docs/images/themes.svg)
+
 ## Install
 
 **Manual install** (until it's on the community list):

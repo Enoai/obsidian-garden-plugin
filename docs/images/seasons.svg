@@ -1,87 +1,95 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 210" width="680" height="210" role="img" aria-label="The four seasons — spring petals, summer pollen, autumn leaves, winter snow — each with a subtle tint.">
 <rect x="0" y="0" width="680" height="210" rx="18" fill="#f0efe4"/>
 <rect x="24" y="18" width="146" height="150" rx="12" fill="#9cbf6a"/>
-<ellipse cx="60.93" cy="57.28" rx="4.6" ry="4.14" fill="#f2b8cd"/>
-<ellipse cx="144.4" cy="79.36" rx="5.06" ry="4.55" fill="#e88ba9"/>
-<ellipse cx="37.7" cy="76.44" rx="3.69" ry="3.32" fill="#f4c9d6"/>
-<ellipse cx="97.3" cy="86.72" rx="3.58" ry="3.22" fill="#f2b8cd"/>
-<ellipse cx="52.62" cy="50.85" rx="4.06" ry="3.65" fill="#e88ba9"/>
-<ellipse cx="153.71" cy="33.01" rx="4.52" ry="4.06" fill="#f4c9d6"/>
-<ellipse cx="64.46" cy="47.54" rx="5.16" ry="4.64" fill="#f2b8cd"/>
-<ellipse cx="104.8" cy="108.62" rx="3.34" ry="3.01" fill="#e88ba9"/>
-<ellipse cx="97" cy="150" rx="22.88" ry="5.5" fill="#5f4326"/>
-<ellipse cx="97" cy="147" rx="18.72" ry="3.5" fill="#6f5030"/>
-<path d="M 97 150 L 97 102.16" fill="none" stroke="rgb(82,122,26)" stroke-width="3.12" stroke-linecap="round"/>
-<path d="M 97 129.2 Q 83.48 122.96 81.4 134.4 Q 92.84 136.48 97 129.2 Z" fill="rgb(143,189,82)"/>
-<ellipse cx="97" cy="94.88" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="103.92" cy="99.9" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="101.3" cy="108.06" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="92.7" cy="108.06" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="90.08" cy="99.9" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="97" cy="102.16" rx="4.37" ry="4.37" fill="#f2b705"/>
+<ellipse cx="62.11" cy="49.72" rx="4.6" ry="4.14" fill="#f2b8cd"/>
+<ellipse cx="142.84" cy="66.11" rx="5.06" ry="4.55" fill="#e88ba9"/>
+<ellipse cx="39.64" cy="63.94" rx="3.69" ry="3.32" fill="#f4c9d6"/>
+<ellipse cx="97.29" cy="71.57" rx="3.58" ry="3.22" fill="#f2b8cd"/>
+<ellipse cx="54.08" cy="44.96" rx="4.06" ry="3.65" fill="#e88ba9"/>
+<ellipse cx="151.85" cy="31.72" rx="4.52" ry="4.06" fill="#f4c9d6"/>
+<ellipse cx="65.53" cy="42.5" rx="5.16" ry="4.64" fill="#f2b8cd"/>
+<rect x="38" y="112" width="118" height="52" rx="12" fill="#5f4326"/>
+<rect x="38" y="112" width="118" height="48" rx="12" fill="#7c5230"/>
+<rect x="41" y="115" width="112" height="43" rx="9" fill="#875a37"/>
+<ellipse cx="97" cy="156" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="97" cy="153" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 97 156 L 97 108.53" fill="none" stroke="rgb(82,122,26)" stroke-width="3.096" stroke-linecap="round"/>
+<path d="M 97 135.36 Q 83.58 129.17 81.52 140.52 Q 92.87 142.58 97 135.36 Z" fill="rgb(143,189,82)"/>
+<ellipse cx="97" cy="101.3" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="103.86" cy="106.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="101.26" cy="114.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="92.74" cy="114.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="90.14" cy="106.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="97" cy="108.53" rx="4.33" ry="4.33" fill="#f2b705"/>
 <rect x="24" y="18" width="146" height="150" rx="12" fill="rgba(225,150,190,0.10)"/>
 <text x="97" y="190" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="500" fill="#4a4a3a">spring</text>
 <rect x="182" y="18" width="146" height="150" rx="12" fill="#9cbf6a"/>
-<ellipse cx="281.47" cy="94.08" rx="4.41" ry="3.97" fill="#f2d86a"/>
-<ellipse cx="235.76" cy="69.28" rx="3.4" ry="3.06" fill="#efc94a"/>
-<ellipse cx="254.41" cy="96.95" rx="5.41" ry="4.87" fill="#f2d86a"/>
-<ellipse cx="286.89" cy="104.44" rx="4.59" ry="4.14" fill="#efc94a"/>
-<ellipse cx="279.86" cy="53.53" rx="4.63" ry="4.17" fill="#f2d86a"/>
-<ellipse cx="226.73" cy="64.07" rx="5.93" ry="5.34" fill="#efc94a"/>
-<ellipse cx="229.12" cy="61.58" rx="5.46" ry="4.92" fill="#f2d86a"/>
-<ellipse cx="309.19" cy="98.25" rx="5.4" ry="4.86" fill="#efc94a"/>
-<ellipse cx="255" cy="150" rx="22.88" ry="5.5" fill="#5f4326"/>
-<ellipse cx="255" cy="147" rx="18.72" ry="3.5" fill="#6f5030"/>
-<path d="M 255 150 L 255 102.16" fill="none" stroke="rgb(82,122,26)" stroke-width="3.12" stroke-linecap="round"/>
-<path d="M 255 129.2 Q 241.48 122.96 239.4 134.4 Q 250.84 136.48 255 129.2 Z" fill="rgb(143,189,82)"/>
-<ellipse cx="255" cy="94.88" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="261.92" cy="99.9" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="259.3" cy="108.06" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="250.7" cy="108.06" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="248.08" cy="99.9" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="255" cy="102.16" rx="4.37" ry="4.37" fill="#f2b705"/>
+<ellipse cx="280.6" cy="77.03" rx="4.41" ry="3.97" fill="#f2d86a"/>
+<ellipse cx="236.4" cy="58.63" rx="3.4" ry="3.06" fill="#efc94a"/>
+<ellipse cx="254.43" cy="79.16" rx="5.41" ry="4.87" fill="#f2d86a"/>
+<ellipse cx="285.85" cy="84.72" rx="4.59" ry="4.14" fill="#efc94a"/>
+<ellipse cx="279.05" cy="46.94" rx="4.63" ry="4.17" fill="#f2d86a"/>
+<ellipse cx="227.65" cy="54.76" rx="5.93" ry="5.34" fill="#efc94a"/>
+<ellipse cx="229.97" cy="52.91" rx="5.46" ry="4.92" fill="#f2d86a"/>
+<rect x="196" y="112" width="118" height="52" rx="12" fill="#5f4326"/>
+<rect x="196" y="112" width="118" height="48" rx="12" fill="#7c5230"/>
+<rect x="199" y="115" width="112" height="43" rx="9" fill="#875a37"/>
+<ellipse cx="255" cy="156" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="255" cy="153" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 255 156 L 255 108.53" fill="none" stroke="rgb(82,122,26)" stroke-width="3.096" stroke-linecap="round"/>
+<path d="M 255 135.36 Q 241.58 129.17 239.52 140.52 Q 250.87 142.58 255 135.36 Z" fill="rgb(143,189,82)"/>
+<ellipse cx="255" cy="101.3" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="261.86" cy="106.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="259.26" cy="114.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="250.74" cy="114.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="248.14" cy="106.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="255" cy="108.53" rx="4.33" ry="4.33" fill="#f2b705"/>
 <rect x="182" y="18" width="146" height="150" rx="12" fill="rgba(245,215,110,0.12)"/>
 <text x="255" y="190" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="500" fill="#4a4a3a">summer</text>
 <rect x="340" y="18" width="146" height="150" rx="12" fill="#9cbf6a"/>
-<ellipse cx="413.52" cy="103.11" rx="3.99" ry="3.59" fill="#c56a2c"/>
-<ellipse cx="353.06" cy="63.57" rx="5.19" ry="4.67" fill="#d98a3a"/>
-<ellipse cx="428.71" cy="116.76" rx="3.96" ry="3.56" fill="#a8471f"/>
-<ellipse cx="381.9" cy="90.78" rx="3.07" ry="2.76" fill="#c56a2c"/>
-<ellipse cx="456.24" cy="89.15" rx="3.87" ry="3.49" fill="#d98a3a"/>
-<ellipse cx="444.45" cy="59.62" rx="5.21" ry="4.69" fill="#a8471f"/>
-<ellipse cx="455.7" cy="72.18" rx="3.2" ry="2.88" fill="#c56a2c"/>
-<ellipse cx="426.33" cy="102.8" rx="5.94" ry="5.35" fill="#d98a3a"/>
-<ellipse cx="413" cy="150" rx="22.88" ry="5.5" fill="#5f4326"/>
-<ellipse cx="413" cy="147" rx="18.72" ry="3.5" fill="#6f5030"/>
-<path d="M 413 150 L 413 102.16" fill="none" stroke="rgb(82,122,26)" stroke-width="3.12" stroke-linecap="round"/>
-<path d="M 413 129.2 Q 399.48 122.96 397.4 134.4 Q 408.84 136.48 413 129.2 Z" fill="rgb(143,189,82)"/>
-<ellipse cx="413" cy="94.88" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="419.92" cy="99.9" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="417.3" cy="108.06" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="408.7" cy="108.06" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="406.08" cy="99.9" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="413" cy="102.16" rx="4.37" ry="4.37" fill="#f2b705"/>
+<ellipse cx="413.51" cy="83.72" rx="3.99" ry="3.59" fill="#c56a2c"/>
+<ellipse cx="355.02" cy="54.39" rx="5.19" ry="4.67" fill="#d98a3a"/>
+<ellipse cx="428.2" cy="93.85" rx="3.96" ry="3.56" fill="#a8471f"/>
+<ellipse cx="382.92" cy="74.58" rx="3.07" ry="2.76" fill="#c56a2c"/>
+<ellipse cx="454.82" cy="73.37" rx="3.87" ry="3.49" fill="#d98a3a"/>
+<ellipse cx="443.42" cy="51.46" rx="5.21" ry="4.69" fill="#a8471f"/>
+<ellipse cx="454.3" cy="60.78" rx="3.2" ry="2.88" fill="#c56a2c"/>
+<rect x="354" y="112" width="118" height="52" rx="12" fill="#5f4326"/>
+<rect x="354" y="112" width="118" height="48" rx="12" fill="#7c5230"/>
+<rect x="357" y="115" width="112" height="43" rx="9" fill="#875a37"/>
+<ellipse cx="413" cy="156" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="413" cy="153" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 413 156 L 413 108.53" fill="none" stroke="rgb(82,122,26)" stroke-width="3.096" stroke-linecap="round"/>
+<path d="M 413 135.36 Q 399.58 129.17 397.52 140.52 Q 408.87 142.58 413 135.36 Z" fill="rgb(143,189,82)"/>
+<ellipse cx="413" cy="101.3" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="419.86" cy="106.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="417.26" cy="114.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="408.74" cy="114.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="406.14" cy="106.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="413" cy="108.53" rx="4.33" ry="4.33" fill="#f2b705"/>
 <rect x="340" y="18" width="146" height="150" rx="12" fill="rgba(205,135,55,0.14)"/>
 <text x="413" y="190" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="500" fill="#4a4a3a">autumn</text>
 <rect x="498" y="18" width="146" height="150" rx="12" fill="#9cbf6a"/>
-<ellipse cx="565.61" cy="53.73" rx="5.36" ry="4.82" fill="#ffffff"/>
-<ellipse cx="536.78" cy="86.53" rx="5.47" ry="4.92" fill="#eaf0f7"/>
-<ellipse cx="590.67" cy="30.67" rx="5.47" ry="4.93" fill="#ffffff"/>
-<ellipse cx="602.05" cy="56.46" rx="3.34" ry="3.01" fill="#eaf0f7"/>
-<ellipse cx="533.95" cy="68.1" rx="5.28" ry="4.75" fill="#ffffff"/>
-<ellipse cx="552.82" cy="72.03" rx="5.33" ry="4.8" fill="#eaf0f7"/>
-<ellipse cx="617.9" cy="67.46" rx="3.99" ry="3.59" fill="#ffffff"/>
-<ellipse cx="627.13" cy="41.14" rx="3.69" ry="3.32" fill="#eaf0f7"/>
-<ellipse cx="571" cy="150" rx="22.88" ry="5.5" fill="#5f4326"/>
-<ellipse cx="571" cy="147" rx="18.72" ry="3.5" fill="#6f5030"/>
-<path d="M 571 150 L 571 102.16" fill="none" stroke="rgb(82,122,26)" stroke-width="3.12" stroke-linecap="round"/>
-<path d="M 571 129.2 Q 557.48 122.96 555.4 134.4 Q 566.84 136.48 571 129.2 Z" fill="rgb(143,189,82)"/>
-<ellipse cx="571" cy="94.88" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="577.92" cy="99.9" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="575.3" cy="108.06" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="566.7" cy="108.06" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="564.08" cy="99.9" rx="6.19" ry="6.19" fill="#e8749f"/>
-<ellipse cx="571" cy="102.16" rx="4.37" ry="4.37" fill="#f2b705"/>
+<ellipse cx="565.78" cy="47.09" rx="5.36" ry="4.82" fill="#ffffff"/>
+<ellipse cx="537.91" cy="71.42" rx="5.47" ry="4.92" fill="#eaf0f7"/>
+<ellipse cx="590.02" cy="29.98" rx="5.47" ry="4.93" fill="#ffffff"/>
+<ellipse cx="601.03" cy="49.12" rx="3.34" ry="3.01" fill="#eaf0f7"/>
+<ellipse cx="535.17" cy="57.75" rx="5.28" ry="4.75" fill="#ffffff"/>
+<ellipse cx="553.41" cy="60.67" rx="5.33" ry="4.8" fill="#eaf0f7"/>
+<ellipse cx="616.37" cy="57.28" rx="3.99" ry="3.59" fill="#ffffff"/>
+<rect x="512" y="112" width="118" height="52" rx="12" fill="#5f4326"/>
+<rect x="512" y="112" width="118" height="48" rx="12" fill="#7c5230"/>
+<rect x="515" y="115" width="112" height="43" rx="9" fill="#875a37"/>
+<ellipse cx="571" cy="156" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="571" cy="153" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 571 156 L 571 108.53" fill="none" stroke="rgb(82,122,26)" stroke-width="3.096" stroke-linecap="round"/>
+<path d="M 571 135.36 Q 557.58 129.17 555.52 140.52 Q 566.87 142.58 571 135.36 Z" fill="rgb(143,189,82)"/>
+<ellipse cx="571" cy="101.3" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="577.86" cy="106.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="575.26" cy="114.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="566.74" cy="114.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="564.14" cy="106.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="571" cy="108.53" rx="4.33" ry="4.33" fill="#f2b705"/>
 <rect x="498" y="18" width="146" height="150" rx="12" fill="rgba(180,205,235,0.20)"/>
 <text x="571" y="190" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="500" fill="#4a4a3a">winter</text>
 </svg>
