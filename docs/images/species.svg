@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 340" width="680" height="340" role="img" aria-label="The five plant species (bush, flower, tree, fern, succulent), each shown fresh and wilting.">
+<rect x="0" y="0" width="680" height="340" rx="18" fill="#b6d98a"/>
+<rect x="0" y="0" width="680" height="340" rx="18" fill="#000000" fill-opacity="0.04"/>
+<ellipse cx="100" cy="148" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="100" cy="145" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 100 148 C 100.38 130.46 100.96 123.23 100.96 112.91" fill="none" stroke="rgb(50,92,22)" stroke-width="4.128" stroke-linecap="round"/>
+<ellipse cx="86.51" cy="119.1" rx="20.64" ry="13.42" fill="rgb(50,92,22)"/>
+<ellipse cx="117.47" cy="114.98" rx="18.58" ry="12.38" fill="rgb(50,92,22)"/>
+<ellipse cx="94.77" cy="106.72" rx="22.7" ry="15.48" fill="rgb(82,122,26)"/>
+<ellipse cx="111.28" cy="123.23" rx="17.54" ry="12.38" fill="rgb(82,122,26)"/>
+<ellipse cx="90.64" cy="99.5" rx="13.42" ry="9.29" fill="rgb(143,189,82)"/>
+<ellipse cx="107.15" cy="109.82" rx="11.35" ry="8.26" fill="rgb(143,189,82)"/>
+<ellipse cx="100" cy="300" rx="21.12" ry="5.5" fill="#5f4326"/>
+<ellipse cx="100" cy="297" rx="17.28" ry="3.5" fill="#6f5030"/>
+<path d="M 100 300 C 104.22 283.68 110.56 276.96 110.56 267.36" fill="none" stroke="rgb(85,65,26)" stroke-width="3.8400000000000003" stroke-linecap="round"/>
+<ellipse cx="97.12" cy="273.12" rx="19.2" ry="12.48" fill="rgb(85,65,26)"/>
+<ellipse cx="125.92" cy="269.28" rx="17.28" ry="11.52" fill="rgb(85,65,26)"/>
+<ellipse cx="104.8" cy="261.6" rx="21.12" ry="14.4" fill="rgb(117,91,31)"/>
+<ellipse cx="120.16" cy="276.96" rx="16.32" ry="11.52" fill="rgb(117,91,31)"/>
+<ellipse cx="84.64" cy="299" rx="6" ry="3" fill="rgb(85,65,26)"/>
+<ellipse cx="112.48" cy="300" rx="5" ry="2.5" fill="rgb(117,91,31)"/>
+<text x="100" y="328" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" fill="#324a1f">bush</text>
+<ellipse cx="215" cy="148" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="215" cy="145" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 215 148 L 215 100.53" fill="none" stroke="rgb(82,122,26)" stroke-width="3.096" stroke-linecap="round"/>
+<path d="M 215 127.36 Q 201.58 121.17 199.52 132.52 Q 210.87 134.58 215 127.36 Z" fill="rgb(143,189,82)"/>
+<ellipse cx="215" cy="93.3" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="221.86" cy="98.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="219.26" cy="106.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="210.74" cy="106.38" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="208.14" cy="98.29" rx="6.14" ry="6.14" fill="#e8749f"/>
+<ellipse cx="215" cy="100.53" rx="4.33" ry="4.33" fill="#f2b705"/>
+<ellipse cx="215" cy="300" rx="21.12" ry="5.5" fill="#5f4326"/>
+<ellipse cx="215" cy="297" rx="17.28" ry="3.5" fill="#6f5030"/>
+<path d="M 215 300 L 215 255.84" fill="none" stroke="rgb(117,91,31)" stroke-width="2.8800000000000003" stroke-linecap="round"/>
+<path d="M 215 280.8 Q 202.52 275.04 200.6 285.6 Q 211.16 287.52 215 280.8 Z" fill="rgb(172,153,82)"/>
+<ellipse cx="215" cy="249.12" rx="5.71" ry="5.71" fill="#b98a6a"/>
+<ellipse cx="221.05" cy="259.2" rx="5.71" ry="5.71" fill="#b98a6a"/>
+<ellipse cx="208.95" cy="259.2" rx="5.71" ry="5.71" fill="#b98a6a"/>
+<ellipse cx="215" cy="255.84" rx="4.03" ry="4.03" fill="#f2b705"/>
+<text x="215" y="328" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" fill="#324a1f">flower</text>
+<ellipse cx="330" cy="148" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="330" cy="145" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 325.87 148 L 326.9 110.85 L 333.1 110.85 L 334.13 148 Z" fill="#6e4a28"/>
+<ellipse cx="313.49" cy="110.85" rx="22.7" ry="16.51" fill="rgb(50,92,22)"/>
+<ellipse cx="346.51" cy="108.78" rx="20.64" ry="15.48" fill="rgb(50,92,22)"/>
+<ellipse cx="325.87" cy="96.4" rx="26.83" ry="19.61" fill="rgb(82,122,26)"/>
+<ellipse cx="342.38" cy="114.98" rx="18.58" ry="14.45" fill="rgb(82,122,26)"/>
+<ellipse cx="319.68" cy="90.21" rx="15.48" ry="11.35" fill="rgb(143,189,82)"/>
+<ellipse cx="338.26" cy="100.53" rx="13.42" ry="10.32" fill="rgb(143,189,82)"/>
+<ellipse cx="330" cy="300" rx="21.12" ry="5.5" fill="#5f4326"/>
+<ellipse cx="330" cy="297" rx="17.28" ry="3.5" fill="#6f5030"/>
+<path d="M 326.16 300 L 327.12 265.44 L 332.88 265.44 L 333.84 300 Z" fill="#6e4a28"/>
+<ellipse cx="314.64" cy="265.44" rx="21.12" ry="15.36" fill="rgb(85,65,26)"/>
+<ellipse cx="345.36" cy="263.52" rx="19.2" ry="14.4" fill="rgb(85,65,26)"/>
+<ellipse cx="326.16" cy="252" rx="24.96" ry="18.24" fill="rgb(117,91,31)"/>
+<ellipse cx="341.52" cy="269.28" rx="17.28" ry="13.44" fill="rgb(117,91,31)"/>
+<text x="330" y="328" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" fill="#324a1f">tree</text>
+<ellipse cx="445" cy="148" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="445" cy="145" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 445 148 Q 434.68 114.98 418.17 121.81" fill="none" stroke="rgb(82,122,26)" stroke-width="2.4768" stroke-linecap="round"/>
+<ellipse cx="418.17" cy="121.81" rx="3.1" ry="3.1" fill="rgb(143,189,82)"/>
+<path d="M 445 148 Q 438.81 114.98 428.9 116.03" fill="none" stroke="rgb(82,122,26)" stroke-width="2.4768" stroke-linecap="round"/>
+<ellipse cx="428.9" cy="116.03" rx="3.1" ry="3.1" fill="rgb(143,189,82)"/>
+<path d="M 445 148 Q 442.94 114.98 439.63 110.25" fill="none" stroke="rgb(82,122,26)" stroke-width="2.4768" stroke-linecap="round"/>
+<ellipse cx="439.63" cy="110.25" rx="3.1" ry="3.1" fill="rgb(143,189,82)"/>
+<path d="M 445 148 Q 447.06 114.98 450.37 110.25" fill="none" stroke="rgb(82,122,26)" stroke-width="2.4768" stroke-linecap="round"/>
+<ellipse cx="450.37" cy="110.25" rx="3.1" ry="3.1" fill="rgb(143,189,82)"/>
+<path d="M 445 148 Q 451.19 114.98 461.1 116.03" fill="none" stroke="rgb(82,122,26)" stroke-width="2.4768" stroke-linecap="round"/>
+<ellipse cx="461.1" cy="116.03" rx="3.1" ry="3.1" fill="rgb(143,189,82)"/>
+<path d="M 445 148 Q 455.32 114.98 471.83 121.81" fill="none" stroke="rgb(82,122,26)" stroke-width="2.4768" stroke-linecap="round"/>
+<ellipse cx="471.83" cy="121.81" rx="3.1" ry="3.1" fill="rgb(143,189,82)"/>
+<ellipse cx="445" cy="300" rx="21.12" ry="5.5" fill="#5f4326"/>
+<ellipse cx="445" cy="297" rx="17.28" ry="3.5" fill="#6f5030"/>
+<path d="M 445 300 Q 435.4 269.28 420.04 282.08" fill="none" stroke="rgb(117,91,31)" stroke-width="2.3040000000000003" stroke-linecap="round"/>
+<ellipse cx="420.04" cy="282.08" rx="2.88" ry="2.88" fill="rgb(172,153,82)"/>
+<path d="M 445 300 Q 439.24 269.28 430.02 276.7" fill="none" stroke="rgb(117,91,31)" stroke-width="2.3040000000000003" stroke-linecap="round"/>
+<ellipse cx="430.02" cy="276.7" rx="2.88" ry="2.88" fill="rgb(172,153,82)"/>
+<path d="M 445 300 Q 443.08 269.28 440.01 271.33" fill="none" stroke="rgb(117,91,31)" stroke-width="2.3040000000000003" stroke-linecap="round"/>
+<ellipse cx="440.01" cy="271.33" rx="2.88" ry="2.88" fill="rgb(172,153,82)"/>
+<path d="M 445 300 Q 446.92 269.28 449.99 271.33" fill="none" stroke="rgb(117,91,31)" stroke-width="2.3040000000000003" stroke-linecap="round"/>
+<ellipse cx="449.99" cy="271.33" rx="2.88" ry="2.88" fill="rgb(172,153,82)"/>
+<path d="M 445 300 Q 450.76 269.28 459.98 276.7" fill="none" stroke="rgb(117,91,31)" stroke-width="2.3040000000000003" stroke-linecap="round"/>
+<ellipse cx="459.98" cy="276.7" rx="2.88" ry="2.88" fill="rgb(172,153,82)"/>
+<path d="M 445 300 Q 454.6 269.28 469.96 282.08" fill="none" stroke="rgb(117,91,31)" stroke-width="2.3040000000000003" stroke-linecap="round"/>
+<ellipse cx="469.96" cy="282.08" rx="2.88" ry="2.88" fill="rgb(172,153,82)"/>
+<text x="445" y="328" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" fill="#324a1f">fern</text>
+<ellipse cx="560" cy="148" rx="22.7" ry="5.5" fill="#5f4326"/>
+<ellipse cx="560" cy="145" rx="18.58" ry="3.5" fill="#6f5030"/>
+<path d="M 560 139.74 Q 567.32 137.68 580.64 135.62 Q 573.32 137.68 560 139.74 Z" fill="rgb(144,187,82)"/>
+<path d="M 560 139.74 Q 564.3 142.06 574.59 144.37 Q 570.3 142.06 560 139.74 Z" fill="rgb(85,122,28)"/>
+<path d="M 560 139.74 Q 557 143.87 560 148 Q 563 143.87 560 139.74 Z" fill="rgb(144,187,82)"/>
+<path d="M 560 139.74 Q 549.7 142.06 545.41 144.37 Q 555.7 142.06 560 139.74 Z" fill="rgb(85,122,28)"/>
+<path d="M 560 139.74 Q 546.68 137.68 539.36 135.62 Q 552.68 137.68 560 139.74 Z" fill="rgb(144,187,82)"/>
+<path d="M 560 139.74 Q 549.7 133.3 545.41 126.86 Q 555.7 133.3 560 139.74 Z" fill="rgb(85,122,28)"/>
+<path d="M 560 139.74 Q 557 131.49 560 123.23 Q 563 131.49 560 139.74 Z" fill="rgb(144,187,82)"/>
+<path d="M 560 139.74 Q 564.3 133.3 574.59 126.86 Q 570.3 133.3 560 139.74 Z" fill="rgb(85,122,28)"/>
+<ellipse cx="560" cy="139.74" rx="4.13" ry="3.1" fill="rgb(144,187,82)"/>
+<ellipse cx="560" cy="300" rx="21.12" ry="5.5" fill="#5f4326"/>
+<ellipse cx="560" cy="297" rx="17.28" ry="3.5" fill="#6f5030"/>
+<path d="M 560 292.32 Q 566.6 290.4 579.2 288.48 Q 572.6 290.4 560 292.32 Z" fill="rgb(186,128,80)"/>
+<path d="M 560 292.32 Q 563.79 294.47 573.58 296.63 Q 569.79 294.47 560 292.32 Z" fill="rgb(157,90,45)"/>
+<path d="M 560 292.32 Q 557 296.16 560 300 Q 563 296.16 560 292.32 Z" fill="rgb(186,128,80)"/>
+<path d="M 560 292.32 Q 550.21 294.47 546.42 296.63 Q 556.21 294.47 560 292.32 Z" fill="rgb(157,90,45)"/>
+<path d="M 560 292.32 Q 547.4 290.4 540.8 288.48 Q 553.4 290.4 560 292.32 Z" fill="rgb(186,128,80)"/>
+<path d="M 560 292.32 Q 550.21 286.33 546.42 280.33 Q 556.21 286.33 560 292.32 Z" fill="rgb(157,90,45)"/>
+<path d="M 560 292.32 Q 557 284.64 560 276.96 Q 563 284.64 560 292.32 Z" fill="rgb(186,128,80)"/>
+<path d="M 560 292.32 Q 563.79 286.33 573.58 280.33 Q 569.79 286.33 560 292.32 Z" fill="rgb(157,90,45)"/>
+<ellipse cx="560" cy="292.32" rx="3.84" ry="2.88" fill="rgb(186,128,80)"/>
+<text x="560" y="328" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="13" fill="#324a1f">succulent</text>
+<text x="42" y="92" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="12" font-weight="500" fill="#3d5a2a">fresh</text>
+<text x="42" y="244" text-anchor="middle" dominant-baseline="central" font-family="-apple-system,system-ui,sans-serif" font-size="12" font-weight="500" fill="#3d5a2a">stale</text>
+</svg>
