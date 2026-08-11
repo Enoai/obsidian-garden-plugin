@@ -4,8 +4,17 @@
  * Keeping this seam thin is what makes the model layer testable without
  * Obsidian and a port to another host a one-file change.
  */
-import { App, TFile } from "obsidian";
+import { App, TFile, getAllTags } from "obsidian";
 import { NoteId, NoteMeta, VaultSnapshot } from "../model/types";
+import { hasIgnoreTag, isPathIgnored } from "../model/filter";
+
+/** Which notes to leave out of the garden. Read live on each snapshot. */
+export interface IgnoreConfig {
+  /** Folder or file paths to exclude (folders exclude everything under them). */
+  paths: string[];
+  /** Bare tag word (e.g. "garden-hide"); notes carrying it are excluded. Empty = off. */
+  tag: string;
+}
 
 export interface VaultAdapter {
   /** Read the whole vault's metadata as a plain snapshot. */
@@ -15,10 +24,24 @@ export interface VaultAdapter {
 }
 
 export class ObsidianVaultAdapter implements VaultAdapter {
-  constructor(private app: App) {}
+  constructor(
+    private app: App,
+    private getIgnore: () => IgnoreConfig = () => ({ paths: [], tag: "" }),
+  ) {}
 
   snapshot(): VaultSnapshot {
-    const files = this.app.vault.getMarkdownFiles();
+    const { paths, tag } = this.getIgnore();
+    // Only pay for per-file tag lookups when a tag filter is actually set.
+    const tagActive = tag.trim().replace(/^#/, "") !== "";
+    const files = this.app.vault.getMarkdownFiles().filter((file: TFile) => {
+      if (isPathIgnored(file.path, paths)) return false;
+      if (tagActive) {
+        const cache = this.app.metadataCache.getFileCache(file);
+        const tags = cache ? getAllTags(cache) ?? [] : [];
+        if (hasIgnoreTag(tags, tag)) return false;
+      }
+      return true;
+    });
     const resolved = this.app.metadataCache.resolvedLinks;
 
     // One pass over the resolved-link graph to count backlinks per target,

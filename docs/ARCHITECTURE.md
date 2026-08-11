@@ -144,6 +144,14 @@ counts) — no Obsidian objects escape. Benefits:
 - The model and scoring layers are testable with hand-built snapshots.
 - Swapping Obsidian internals (or porting elsewhere) touches one file.
 
+**Ignore filtering** happens here too, at the source: the adapter drops notes
+matching the user's ignored paths or ignore tag before they ever become plants,
+so layout and scoring never see them. The *rules* are pure functions in
+`model/filter.ts` (`isPathIgnored`, `hasIgnoreTag`) — unit-tested without
+Obsidian; the adapter just gathers each file's path and tags (via `getAllTags`)
+and asks them. Links *from* ignored notes still count toward other notes'
+connectivity — we filter the plant list, not the link graph.
+
 ```ts
 export interface NoteMeta {
   id: NoteId;

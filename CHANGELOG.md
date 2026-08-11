@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-08-11
+
+### Added
+- **Ignore files & folders** — a searchable setting (with vault autocomplete)
+  to exclude specific folders or files from the garden; a folder hides
+  everything nested inside it. (#10)
+- **Ignore tag** — hide any note carrying a configurable tag (default
+  `#garden-hide`, in frontmatter or inline); matching is case-insensitive. (#10)
+- **Open garden on startup** — a setting to open the garden automatically when
+  Obsidian starts. (#10)
+
 ## [1.0.2] — 2026-08-09
 
 ### Fixed

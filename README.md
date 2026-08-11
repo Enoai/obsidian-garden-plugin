@@ -96,6 +96,16 @@ Open the garden from the ribbon (the sprout icon) or the command palette
 Settings let you tune the scoring (freshness half-life, connectivity
 saturation), the archive folder, the season, the theme, and update debounce.
 
+**Keep notes out of the garden**, and choose when it opens:
+
+- **Ignore files & folders** — search your vault and exclude specific folders
+  or files. Excluding a folder hides everything nested inside it.
+- **Ignore tag** — hide any note carrying a tag (default `#garden-hide`, set in
+  frontmatter or inline). Change the tag word or leave it blank to disable;
+  matching is case-insensitive.
+- **Open garden on startup** — open the garden automatically when Obsidian
+  starts.
+
 ## How health is computed
 
 Two independent axes, each normalised to `0..1`:
