@@ -49,6 +49,14 @@ telemetry.
   (bring-your-own plant/structure art) into the plugin's `themes/` folder. See
   [docs/THEME-PACKS.md](docs/THEME-PACKS.md).
 
+**Keep it focused** — decide what's in the garden and when it opens.
+- **Ignore files & folders** — search your vault and exclude specific folders
+  or files; excluding a folder hides everything nested inside it.
+- **Ignore tag** — hide any note carrying a tag (default `#garden-hide`, in
+  frontmatter or inline). Case-insensitive, and the tag word is configurable.
+- **Open garden on startup** — open the garden automatically when Obsidian
+  starts.
+
 ## Gallery
 
 Five plant species, each shown fresh and wilting — the same note greens and
