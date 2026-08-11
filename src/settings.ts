@@ -213,10 +213,10 @@ export class GardenSettingTab extends PluginSettingTab {
       .setDesc("Notes here won't appear in the garden. A folder hides everything inside it. Type to search your vault.")
       .addSearch((s) => {
         s.setPlaceholder("Add a folder or file…");
-        new PathSuggest(this.app, s.inputEl, async (path) => {
+        new PathSuggest(this.app, s.inputEl, (path) => {
           if (!this.plugin.settings.ignoredPaths.includes(path)) {
             this.plugin.settings.ignoredPaths.push(path);
-            await this.plugin.saveSettings();
+            void this.plugin.saveSettings();
             this.plugin.refreshViews();
             renderIgnoreList();
           }

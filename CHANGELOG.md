@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] — 2026-08-11
+
+### Fixed
+- Code-review warnings: removed an unnecessary type assertion in the theme-pack
+  loader, and stopped passing a promise-returning callback where a void return
+  was expected in the ignored-paths settings input. (#13)
+
 ## [1.1.0] — 2026-08-11
 
 ### Added

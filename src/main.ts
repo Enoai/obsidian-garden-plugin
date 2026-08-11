@@ -108,9 +108,7 @@ export default class GardenPlugin extends Plugin {
       for (const file of listing.files) {
         if (!file.endsWith(".json")) continue;
         try {
-          out.push(
-            mergeTheme(DEFAULT_THEME, JSON.parse(await adapter.read(file)) as Partial<Theme>),
-          );
+          out.push(mergeTheme(DEFAULT_THEME, JSON.parse(await adapter.read(file))));
         } catch (e) {
           console.error(`Vault Garden: could not load theme pack ${file}`, e);
         }
@@ -121,7 +119,7 @@ export default class GardenPlugin extends Plugin {
         if (!(await adapter.exists(manifestPath))) continue;
         try {
           const json = JSON.parse(await adapter.read(manifestPath)) as unknown;
-          const theme = mergeTheme(DEFAULT_THEME, json as Partial<Theme>);
+          const theme = mergeTheme(DEFAULT_THEME, json);
           if (json && typeof json === "object" && "sprites" in json) {
             theme.sprites = this.resolveSprites((json as { sprites?: unknown }).sprites, folder);
           }
