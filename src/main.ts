@@ -37,6 +37,12 @@ export default class GardenPlugin extends Plugin {
     });
 
     this.addSettingTab(new GardenSettingTab(this.app, this));
+
+    // Open the garden on startup if the user asked for it. onLayoutReady runs
+    // after Obsidian restores its workspace, so this doesn't race that restore.
+    if (this.settings.openOnStartup) {
+      this.app.workspace.onLayoutReady(() => void this.activateView());
+    }
   }
 
   /** Assemble the view's dependencies. The seams live here. */
@@ -51,7 +57,10 @@ export default class GardenPlugin extends Plugin {
       await this.saveSettings();
     };
     return {
-      adapter: new ObsidianVaultAdapter(this.app),
+      adapter: new ObsidianVaultAdapter(this.app, () => ({
+        paths: this.settings.ignoredPaths,
+        tag: this.settings.ignoreTag,
+      })),
       mutator: new ObsidianVaultMutator(this.app),
       model: new GardenModel(getConfig()),
       layout: new GardenLayout({ plantWidth: PLANT_WIDTH, plantHeight: PLANT_HEIGHT, getPlacement }),
