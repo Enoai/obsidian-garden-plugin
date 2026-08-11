@@ -122,6 +122,12 @@ themes and icon packs already spread.
 Not scheduled or promised — a backlog of directions the existing seams already
 make tractable. Contributions welcome.
 
+### Declarative settings API
+- Adopt Obsidian's declarative settings API (`getSettingDefinitions()`, new in
+  1.13.0) so the plugin's settings appear in Obsidian's built-in settings
+  search. Needs the whole settings tab — including the custom autocomplete
+  ignored-files/folders list — reworked into setting definitions.
+
 ### Deeper visual customization
 - A **pack manager** in settings: browse, preview, and enable theme packs
   instead of editing files.
