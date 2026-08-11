@@ -122,9 +122,6 @@ themes and icon packs already spread.
 Not scheduled or promised — a backlog of directions the existing seams already
 make tractable. Contributions welcome.
 
-### Block/Ignore folders/Files
-- This is going to be done to allow the larger vaults from not being overloaded with areas they know area dead
-
 ### Deeper visual customization
 - A **pack manager** in settings: browse, preview, and enable theme packs
   instead of editing files.
