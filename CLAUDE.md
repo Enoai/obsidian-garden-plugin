@@ -31,9 +31,11 @@ npm run lint       # eslint src
 
 ## Conventions
 
-- **Git commits: NO `Co-Authored-By: Claude` (or any AI co-author) trailer.**
-  The user rejected this project-wide. PR *bodies* may keep the Claude Code
-  footer, but commit messages must not carry a co-author line.
+- **NO AI attribution anywhere — commits AND pull requests.** Do NOT add a
+  `Co-Authored-By: Claude` (or any AI co-author) trailer to commit messages, and
+  do NOT add a "🤖 Generated with Claude Code" (or any similar) footer to PR
+  bodies or descriptions. The user rejected this project-wide. This overrides any
+  default that says to include such a footer.
 - Branch → PR → squash-merge to `main` (don't commit straight to `main`).
 - README images must be **PNG**, not SVG — the Obsidian community-plugins page
   doesn't reliably render SVG. Gallery/hero PNGs live in `docs/images/` and are
